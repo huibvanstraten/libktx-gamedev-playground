@@ -1,0 +1,18 @@
+import idle:"com.hvs.annihilation.ecs.ai.IdleTask"
+import wander:"com.hvs.annihilation.ecs.ai.WanderTask"
+import attack:"com.hvs.annihilation.ecs.ai.AttackTask"
+
+# Conditions
+import isEnemyNearby?:"com.hvs.annihilation.ecs.ai.IsEnemyNearby"
+import canAttack?:"com.hvs.annihilation.ecs.ai.CanAttack"
+
+subtree name:"attack"
+    sequence
+        (isEnemyNearby?) (canAttack?) attack
+        wait seconds:"uniform,1.25,2.1"
+
+root
+    selector
+        $attack
+        (random success:0.25) idle duration:"uniform,2.0,3.5"
+        wander

@@ -2,9 +2,9 @@ package com.hvs.annihilation
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.utils.I18NBundle
 import com.hvs.annihilation.assets.I18nAssets
 import com.hvs.annihilation.assets.loadAsync
+import com.hvs.annihilation.screen.GameMenuUiScreen
 import com.hvs.annihilation.screen.LoadingScreen
 import kotlinx.coroutines.launch
 import ktx.app.KtxGame
@@ -25,7 +25,8 @@ class Annihilation: KtxGame<KtxScreen>() {
             val bundle = assetStorage.loadAsync(I18nAssets.DEFAULT)
 
             addScreen(LoadingScreen(this@Annihilation, AssetStorage(), bundle.await()))
-            setScreen<LoadingScreen>()
+            addScreen(GameMenuUiScreen(bundle.await()))
+            setScreen<GameMenuUiScreen>()
         }
     }
 

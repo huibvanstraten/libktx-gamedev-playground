@@ -1,7 +1,6 @@
 package com.hvs.annihilation.screen
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -9,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.I18NBundle
 import com.hvs.annihilation.Annihilation
 import com.hvs.annihilation.event.MenuChoiceEvent
@@ -19,8 +17,7 @@ import com.hvs.annihilation.ui.LabelStyles
 import com.hvs.annihilation.ui.addSelectionEffect
 import com.hvs.annihilation.ui.createSkin
 import com.hvs.annihilation.ui.removeSelectionEffect
-import com.hvs.annihilation.ui.widget.GameMenuWidget
-import ktx.actors.alpha
+import com.hvs.annihilation.ui.widget.StartMenuWidget
 import ktx.actors.centerPosition
 import ktx.actors.plusAssign
 import ktx.app.KtxScreen
@@ -108,7 +105,7 @@ class StartScreen(
                 if (!menuShown) {
 
                     menuShown = true
-                    val menu = GameMenuWidget(
+                    val menu = StartMenuWidget(
                         bundle = bundle,
                         skin = skin,
                         menuOptions
@@ -146,11 +143,12 @@ class StartScreen(
 
     private fun startGame() {
         startStage.fire(MenuChoiceEvent())
+        removeXboxControllerListener()
         game.setScreen<GameScreen>()
         game.removeScreen<StartScreen>()
     }
 
-    fun quitGame() {
+    private fun quitGame() {
         startStage.fire(MenuChoiceEvent())
         Gdx.app.exit()
     }

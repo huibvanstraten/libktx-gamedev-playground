@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.I18NBundle
-import com.hvs.annihilation.ui.Images
+import com.hvs.annihilation.ui.Drawables
 import com.hvs.annihilation.ui.LabelStyles
 import ktx.actors.onClick
 import ktx.collections.GdxArray
@@ -14,7 +14,7 @@ import ktx.scene2d.KTable
 import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.label
 
-class GameMenuWidget(
+class StartMenuWidget(
     bundle: I18NBundle,
     skin: Skin = Scene2DSkin.defaultSkin,
     menuOptions: GdxArray<Label>
@@ -23,7 +23,7 @@ class GameMenuWidget(
     private val continueLabel: Label
 
     init {
-        skin.getDrawable(Images.MENU_BACKGROUND.imageName)
+        skin.getDrawable(Drawables.MENU_BACKGROUND.atlasKey)
         defaults().pad(5f, 70f, 25f, 25f)
 
         newGameLabel = label(bundle["newGame"], LabelStyles.LARGE.name) { cell ->

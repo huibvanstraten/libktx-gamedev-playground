@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.hvs.annihilation.ecs.dead.DeadComponent
@@ -18,6 +19,8 @@ import com.hvs.annihilation.ecs.animation.AnimationComponent
 import com.hvs.annihilation.ecs.physics.PhysicsComponent
 import com.hvs.annihilation.ecs.player.PlayerComponent
 import com.hvs.annihilation.enums.AnimationType
+import com.hvs.annihilation.event.EntityTakeDamageEvent
+import com.hvs.annihilation.event.fire
 import ktx.assets.disposeSafely
 
 @AllOf([LifeComponent::class])
@@ -27,7 +30,8 @@ class LifeSystem(
     private val deadComponents: ComponentMapper<DeadComponent>,
     private val playerComponents: ComponentMapper<PlayerComponent>,
     private val physicsComponents: ComponentMapper<PhysicsComponent>,
-    private val animationComponents: ComponentMapper<AnimationComponent>
+    private val animationComponents: ComponentMapper<AnimationComponent>,
+    private val gameStage: Stage
 ): IteratingSystem() {
 
     private val damageFont = BitmapFont(Gdx.files.internal("damage.fnt"))
@@ -44,8 +48,10 @@ class LifeSystem(
         //does entity take damage?
         if(lifeComp.takeDamage > 0f) {
             lifeComp.life -= lifeComp.takeDamage
+            gameStage.fire(EntityTakeDamageEvent(entity, lifeComp.takeDamage))
             floatingText(lifeComp.takeDamage.toInt().toString(), physicsComp.body.position, physicsComp.size)
             lifeComp.takeDamage = 0f
+
         }
 
         //is life 0? if so, add to list of dead entities/components

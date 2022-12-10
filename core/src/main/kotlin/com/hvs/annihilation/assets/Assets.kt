@@ -1,9 +1,7 @@
 package com.hvs.annihilation.assets
 
-import com.badlogic.gdx.assets.loaders.ParticleEffectLoader
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.g2d.ParticleEffect
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.utils.I18NBundle
@@ -30,7 +28,8 @@ operator fun AssetStorage.get(asset: SoundAssets) = get<Sound>(asset.filePath)
 // texture atlas
 enum class TextureAtlasAssets(val filePath: String) {
     GAME_OBJECTS("assets/graphics/game.atlas"),
-    UI("assets/ui/ui.atlas")
+    UI("assets/ui/ui.atlas"),
+    GAMEUI("assets/ui/gameui.atlas")
 }
 
 fun AssetStorage.loadAsync(asset: TextureAtlasAssets) = loadAsync<TextureAtlas>(asset.filePath)
@@ -44,18 +43,6 @@ enum class MapAssets(val filePath: String) {
 
 fun AssetStorage.loadAsync(asset: MapAssets) = loadAsync<TiledMap>(asset.filePath)
 operator fun AssetStorage.get(asset: MapAssets) = get<TiledMap>(asset.filePath)
-
-// particle effects
-enum class ParticleAssets(val filePath: String, val scale: Float = 1f, val sound: SoundAssets = SoundAssets.UNKNOWN) {
-    BLOOD("particles/blood.p", 0.5f),
-    PORTAL("particles/portal.p"),
-    PORTAL2("particles/portal2.p", 0.5f)
-}
-
-fun AssetStorage.loadAsync(asset: ParticleAssets, params: ParticleEffectLoader.ParticleEffectParameter) =
-    loadAsync<ParticleEffect>(asset.filePath, params)
-
-operator fun AssetStorage.get(asset: ParticleAssets) = get<ParticleEffect>(asset.filePath)
 
 enum class I18nAssets(val filePath: String) {
     DEFAULT("ui/i18n")

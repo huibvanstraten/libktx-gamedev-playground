@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.github.quillraven.fleks.Entity
 import com.hvs.annihilation.enums.AnimationModel
 
 fun Stage.fire(event: Event) {
@@ -21,3 +22,7 @@ data class EntityDeathEvent(val model: AnimationModel): Event()
 data class EntityLootEvent(val model: AnimationModel): Event()
 
 class MenuChoiceEvent: Event()
+
+data class EntityTakeDamageEvent(val entity: Entity, val damage: Float) : Event()
+
+data class EntityReviveEvent(val entity: Entity) : Event()

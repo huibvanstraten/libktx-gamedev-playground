@@ -6,6 +6,7 @@ import com.hvs.annihilation.assets.I18nAssets
 import com.hvs.annihilation.assets.loadAsync
 import com.hvs.annihilation.screen.GameMenuUiScreen
 import com.hvs.annihilation.screen.LoadingScreen
+import com.hvs.annihilation.screen.GameUiScreen
 import kotlinx.coroutines.launch
 import ktx.app.KtxGame
 import ktx.app.KtxScreen

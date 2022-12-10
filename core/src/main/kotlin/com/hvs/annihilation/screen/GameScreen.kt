@@ -7,24 +7,32 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.fleks.World
+import com.hvs.annihilation.assets.TextureAtlasAssets
 import com.hvs.annihilation.event.MapChangeEvent
 import com.hvs.annihilation.event.fire
 import com.hvs.annihilation.input.InputConverter
 import com.hvs.annihilation.input.InputHandler
 import com.hvs.annihilation.state.PlayerEntity
+import com.hvs.annihilation.ui.createSkin
+import com.hvs.annihilation.ui.disposeSkin
+import com.hvs.annihilation.ui.model.GameModel
+import com.hvs.annihilation.ui.view.GameView
+import com.hvs.annihilation.ui.view.gameView
 import ktx.app.KtxScreen
 import ktx.assets.disposeSafely
 import ktx.log.logger
+import ktx.scene2d.actors
 
 class GameScreen(
     private val gameStage: Stage,
     private val uiStage: Stage,
     private val entityWorld: World,
-    private val physicsWorld: com.badlogic.gdx.physics.box2d.World
+    private val physicsWorld: com.badlogic.gdx.physics.box2d.World,
 ): KtxScreen {
 
-    private val textureAtlas = TextureAtlas("assets/graphics/game.atlas")
+    private val textureAtlas = TextureAtlas(TextureAtlasAssets.GAMEUI.filePath)
 
+    lateinit var gameView: GameView
     lateinit var currentMap: TiledMap
 
     init {
@@ -39,6 +47,8 @@ class GameScreen(
                 PlayerEntity(entityWorld.entity(), entityWorld)
             )
         )
+
+        createSkin(TextureAtlas(TextureAtlasAssets.GAMEUI.filePath))
     }
 
     override fun show() {
@@ -47,6 +57,16 @@ class GameScreen(
         uiStage.clear()
         currentMap = TmxMapLoader().load("map/map1.tmx") //TODO: this is static 1 map
         gameStage.fire(MapChangeEvent(currentMap))
+
+        uiStage.actors {
+            gameView = gameView(GameModel(entityWorld, gameStage))
+        }
+
+        gameView.debugAll()
+        gameView.top().left()
+
+        uiStage.act()
+        uiStage.draw()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -67,6 +87,7 @@ class GameScreen(
         uiStage.disposeSafely()
         textureAtlas.disposeSafely()
         currentMap.disposeSafely()
+        disposeSkin()
     }
 
     companion object {

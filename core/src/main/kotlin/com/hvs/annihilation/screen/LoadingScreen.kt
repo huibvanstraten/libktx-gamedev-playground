@@ -20,7 +20,6 @@ import com.hvs.annihilation.ecs.camera.CameraSystem
 import com.hvs.annihilation.ecs.collision.CollisionDespawnSystem
 import com.hvs.annihilation.ecs.collision.CollisionSpawnSystem
 import com.hvs.annihilation.ecs.dead.DeadSystem
-import com.hvs.annihilation.ecs.debug.DebugSystem
 import com.hvs.annihilation.ecs.floatingtext.FloatingTextComponent
 import com.hvs.annihilation.ecs.floatingtext.FloatingTextSystem
 import com.hvs.annihilation.ecs.image.ImageComponent
@@ -34,9 +33,6 @@ import com.hvs.annihilation.ecs.render.RenderSystem
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem
 import com.hvs.annihilation.ecs.state.StateComponent
 import com.hvs.annihilation.ecs.state.StateSystem
-import com.hvs.annihilation.input.InputConverter
-import com.hvs.annihilation.input.InputHandler
-import com.hvs.annihilation.state.PlayerEntity
 import com.hvs.annihilation.ui.createSkin
 import com.hvs.annihilation.ui.widget.LoadingBarWidget
 import kotlinx.coroutines.joinAll
@@ -73,7 +69,7 @@ class LoadingScreen(
         val assetReferences = listOf(
             MusicAssets.values().map { assets.loadAsync(it) },
             SoundAssets.values().filter { it != SoundAssets.UNKNOWN }.map { assets.loadAsync(it) },
-//            TextureAtlasAssets.values().filter { it != TextureAtlasAssets.UI }.map { assets.loadAsync(it) }, //TODO: assets do not get injected
+            TextureAtlasAssets.values().filter { it != TextureAtlasAssets.UI }.map { assets.loadAsync(it) }, //TODO: assets do not get injected
             MapAssets.values().map { assets.loadAsync(it) }
         ).flatten()
 
@@ -118,7 +114,8 @@ class LoadingScreen(
 
     private fun initiateResources() {
         val stage = Stage(ExtendViewport(32f, 18f))
-        val uiStage = Stage(ExtendViewport(1280f, 720f))
+        val uiStage = Stage(ExtendViewport(720f, 400f))
+        val startUiStage = Stage(ExtendViewport(1280f, 720f))
         val physicsWorld = createWorld(gravity = earthGravity).apply { autoClearForces = false }
         val world: World = entityWorld(stage, uiStage, physicsWorld)
 
@@ -128,7 +125,7 @@ class LoadingScreen(
             StartScreen(
                 game,
                 stage,
-                uiStage,
+                startUiStage,
                 bundle
             )
         )
@@ -147,7 +144,7 @@ class LoadingScreen(
     private fun entityWorld(
         gameStage: Stage,
         uiStage: Stage,
-        physicsWorld: com.badlogic.gdx.physics.box2d.World
+        physicsWorld: com.badlogic.gdx.physics.box2d.World,
     ): World = World {
         inject(gameStage)
         inject("uiStage", uiStage)
@@ -177,7 +174,6 @@ class LoadingScreen(
         system<FloatingTextSystem>()
         system<RenderSystem>()
         system<AudioSystem>()
-        system<DebugSystem>()
     }
 
     companion object {

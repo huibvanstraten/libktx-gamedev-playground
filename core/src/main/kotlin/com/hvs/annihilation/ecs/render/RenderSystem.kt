@@ -48,7 +48,6 @@ class RenderSystem(
 
             val parallaxMinWidth = camera.viewportWidth * 0.5f
 
-
             //TODO: refactor
             foregroundLayers.forEach { layer ->
                 mapParallaxValues.add(layer.property("ParallaxValue", 0f))

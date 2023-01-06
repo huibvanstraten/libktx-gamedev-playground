@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.github.quillraven.fleks.Entity
@@ -21,8 +22,9 @@ import com.hvs.annihilation.ui.view.gameView
 import ktx.app.KtxScreen
 import ktx.scene2d.actors
 
-class GameUiScreen(
-    private val bundle:I18NBundle
+class DevelopUiScreen(
+    private val bundle:I18NBundle,
+    private val skin: Skin
 ): KtxScreen {
     private val uiStage: Stage = Stage(ExtendViewport(320f, 180f))
     private val eWorld = World {}
@@ -47,7 +49,7 @@ class GameUiScreen(
         createSkin(TextureAtlas(TextureAtlasAssets.GAMEUI.filePath))
 
         uiStage.actors {
-            gameView = gameView(model)
+            gameView = gameView(model, skin)
 
         }
 

@@ -1,5 +1,6 @@
 package com.hvs.annihilation.screen
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.I18NBundle
@@ -35,16 +36,17 @@ import com.hvs.annihilation.ecs.state.StateComponent
 import com.hvs.annihilation.ecs.state.StateSystem
 import com.hvs.annihilation.ui.createSkin
 import com.hvs.annihilation.ui.widget.LoadingBarWidget
+import com.hvs.annihilation.ui.widget.loadingBarWidget
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import ktx.actors.centerPosition
 import ktx.app.KtxScreen
 import ktx.assets.async.AssetStorage
-import ktx.assets.disposeSafely
 import ktx.async.KtxAsync
 import ktx.box2d.createWorld
 import ktx.box2d.earthGravity
 import ktx.log.logger
+import ktx.scene2d.actors
 
 class LoadingScreen(
     private val game: Annihilation,
@@ -52,15 +54,13 @@ class LoadingScreen(
     private val bundle: I18NBundle
 ) : KtxScreen {
 
-    private val textureAtlasUi = TextureAtlas(TextureAtlasAssets.UI.filePath)
     private val textureAtlas = TextureAtlas(TextureAtlasAssets.GAME_OBJECTS.filePath)
+    private val batch = SpriteBatch()
+    private val gameStage: Stage = Stage(ExtendViewport(32f, 18f), batch)
+    private val uiStage: Stage = Stage(ExtendViewport(1280f, 720f), batch)
 
-    private val startStage: Stage = Stage(ExtendViewport(32f, 18f))
-    private val startUiStage: Stage = Stage(ExtendViewport(1280f, 720f))
-
-    private val loadingBar = LoadingBarWidget(bundle, createSkin(textureAtlasUi))
+    lateinit var loadingBar: LoadingBarWidget
     private var loaded = false
-
 
     override fun show() {
         log.debug { "This is the loading screen" }
@@ -69,14 +69,16 @@ class LoadingScreen(
         val assetReferences = listOf(
             MusicAssets.values().map { assets.loadAsync(it) },
             SoundAssets.values().filter { it != SoundAssets.UNKNOWN }.map { assets.loadAsync(it) },
-            TextureAtlasAssets.values().filter { it != TextureAtlasAssets.UI }.map { assets.loadAsync(it) }, //TODO: assets do not get injected
+            TextureAtlasAssets.values().filter { it != TextureAtlasAssets.UI }
+                .map { assets.loadAsync(it) }, //TODO: assets do not get injected
             MapAssets.values().map { assets.loadAsync(it) }
         ).flatten()
 
-
-        startUiStage.clear()
-        startUiStage.addActor(loadingBar)
-        loadingBar.centerPosition(startUiStage.width * 0.5f, startUiStage.height * 0.15f)
+        uiStage.actors {
+            loadingBar = loadingBarWidget(bundle, createSkin(TextureAtlas(TextureAtlasAssets.UI.filePath))).apply {
+                centerPosition(uiStage.width * 0.5f, uiStage.height * 0.15f)
+            }
+        }
 
         KtxAsync.launch {
             // Awaiting until all assets are loaded:
@@ -85,59 +87,53 @@ class LoadingScreen(
         }
     }
 
-
     override fun resize(width: Int, height: Int) {
-        startStage.viewport.update(width, height, true)
-        startUiStage.viewport.update(width, height, true)
+        gameStage.viewport.update(width, height, true)
+        uiStage.viewport.update(width, height, true)
     }
 
     override fun render(delta: Float) {
         loadingBar.scaleTo(assets.progress.percent)
 
         if (loaded) {
+            uiStage.clear()
             // go to the menu screen once everything is loaded
-            game.setScreen<StartScreen>()
+            game.setScreen<TitleScreen>()
             // cleanup loading screen stuff
             game.removeScreen<LoadingScreen>()
             dispose()
         }
 
-        startUiStage.act()
-        startUiStage.draw()
-    }
-
-    override fun dispose() {
-        startStage.disposeSafely()
-        startUiStage.disposeSafely()
-        textureAtlasUi.disposeSafely()
+        uiStage.act()
+        uiStage.draw()
     }
 
     private fun initiateResources() {
-        val stage = Stage(ExtendViewport(32f, 18f))
-        val uiStage = Stage(ExtendViewport(720f, 400f))
-        val startUiStage = Stage(ExtendViewport(1280f, 720f))
+        val tempUiStage = Stage(ExtendViewport(720f, 400f))
+        val skin = createSkin(TextureAtlas(TextureAtlasAssets.GAMEUI.filePath))
         val physicsWorld = createWorld(gravity = earthGravity).apply { autoClearForces = false }
-        val world: World = entityWorld(stage, uiStage, physicsWorld)
+        val world: World = entityWorld(gameStage, tempUiStage, physicsWorld)
 
         // all assets are loaded -> add remaining screens to our game now because
         // now they can access the different assets that they need
         game.addScreen(
-            StartScreen(
+            TitleScreen(
                 game,
-                stage,
-                startUiStage,
-                bundle
+                gameStage,
+                uiStage,
+                bundle,
+                world
             )
         )
         game.addScreen(
             GameScreen(
-                stage,
-                uiStage,
+                gameStage,
+                tempUiStage,
+                skin,
                 world,
                 physicsWorld
             )
         )
-
         loaded = true
     }
 

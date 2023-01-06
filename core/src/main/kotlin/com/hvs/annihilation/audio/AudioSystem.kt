@@ -9,6 +9,8 @@ import com.github.quillraven.fleks.IntervalSystem
 import com.hvs.annihilation.event.EntityAttackEvent
 import com.hvs.annihilation.event.EntityDeathEvent
 import com.hvs.annihilation.event.EntityLootEvent
+import com.hvs.annihilation.event.GamePauseEvent
+import com.hvs.annihilation.event.GameResumeEvent
 import com.hvs.annihilation.event.MapChangeEvent
 import com.hvs.annihilation.event.MenuChoiceEvent
 import ktx.assets.disposeSafely
@@ -21,6 +23,8 @@ class AudioSystem: EventListener, IntervalSystem() {
     private val soundCache = mutableMapOf<String, Sound>()
     private val soundRequests = mutableMapOf<String, Sound>()
 
+    private var music: Music? = null
+
     override fun onTick() {
         soundRequests.values.forEach { it.play(1f) }
         soundRequests.clear()
@@ -28,31 +32,34 @@ class AudioSystem: EventListener, IntervalSystem() {
 
     override fun handle(event: Event): Boolean {
         when(event) {
-            is MapChangeEvent -> {
-                event.map.propertyOrNull<String>("music")?.let { path ->
-                    log.debug { "Changing music to $path" }
-                    val music = musicCache.getOrPut(path) {
-                        Gdx.audio.newMusic(Gdx.files.internal(path)).apply {
-                            isLooping = true
-                        }
-                    }
-                    music.play()
-                }
-                return true
-            }
+            is MapChangeEvent -> return mapChangeEvent(event)
             is EntityAttackEvent -> queueSound("audio/${event.model.atlasKey}_attack.wav")
             is EntityDeathEvent -> queueSound("audio/${event.model.atlasKey}_death.wav")
             is EntityLootEvent -> queueSound("audio/${event.model.atlasKey}_open.wav")
             is MenuChoiceEvent -> queueSound("audio/menu_select.mp3")
+            is GamePauseEvent -> {
+                music?.pause()
+                soundCache.values.forEach { it.pause() }
+                queueSound("audio/pause.mp3")
+
+            }
+            is GameResumeEvent -> {
+                music?.play()
+                queueSound("audio/pause.mp3")
+                soundCache.values.forEach { it.resume() }
+            }
         }
         return false
     }
 
+    override fun onDispose() {
+        musicCache.values.forEach { it.disposeSafely() }
+        soundCache.values.forEach { it.disposeSafely() }
+    }
+
     private fun queueSound(soundPath: String) {
         log.debug { "Queueing sound $soundPath" }
-        if (soundPath in soundRequests) {
-            return
-        }
+        if (soundPath in soundRequests) return
 
         val sound = soundCache.getOrPut(soundPath) {
             Gdx.audio.newSound(Gdx.files.internal(soundPath))
@@ -60,9 +67,17 @@ class AudioSystem: EventListener, IntervalSystem() {
         soundRequests[soundPath] = sound
     }
 
-    override fun onDispose() {
-        musicCache.values.forEach { it.disposeSafely() }
-        soundCache.values.forEach { it.disposeSafely() }
+    private fun mapChangeEvent(event: MapChangeEvent): Boolean {
+        event.map.propertyOrNull<String>("music")?.let { path ->
+            log.debug { "Changing music to $path" }
+            music = musicCache.getOrPut(path) {
+                Gdx.audio.newMusic(Gdx.files.internal(path)).apply {
+                    isLooping = true
+                }
+            }
+            music?.play()
+        }
+        return true
     }
 
     companion object {

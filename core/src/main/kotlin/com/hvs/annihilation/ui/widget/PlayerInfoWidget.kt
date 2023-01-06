@@ -11,7 +11,6 @@ import com.hvs.annihilation.ui.get
 import ktx.actors.plusAssign
 import ktx.scene2d.KGroup
 import ktx.scene2d.KWidget
-import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.Scene2dDsl
 import ktx.scene2d.actor
 
@@ -52,6 +51,6 @@ class PlayerInfoWidget(
 
 @Scene2dDsl
 inline fun <S> KWidget<S>.playerInfoWidget(
-    skin: Skin = Scene2DSkin.defaultSkin,
+    skin: Skin,
     init: PlayerInfoWidget.(S) -> Unit = {}
 ) = actor(PlayerInfoWidget(skin), init)

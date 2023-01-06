@@ -8,14 +8,13 @@ import com.hvs.annihilation.ui.get
 import ktx.actors.plusAssign
 import ktx.scene2d.KGroup
 import ktx.scene2d.KWidget
-import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.Scene2dDsl
 import ktx.scene2d.actor
 
 @Scene2dDsl
 class OtherWidget(
     skin: Skin,
-    private val helmet: Image = Image(skin[Drawables.HELMET]),
+    private val helmet: Image = Image(skin[Drawables.HELMET])
     ): WidgetGroup(), KGroup {
 
     init {
@@ -28,6 +27,6 @@ class OtherWidget(
 
 @Scene2dDsl
 inline fun <S> KWidget<S>.otherWidget(
-    skin: Skin = Scene2DSkin.defaultSkin,
+    skin: Skin,
     init: OtherWidget.(S) -> Unit = {}
 ) = actor(OtherWidget(skin), init)

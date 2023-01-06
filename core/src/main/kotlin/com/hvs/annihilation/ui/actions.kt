@@ -6,7 +6,7 @@ import ktx.actors.plusAssign
 
 fun Label.addSelectionEffect() {
   this.clearActions()
-  this += Actions.forever(Actions.sequence(Actions.fadeOut(0.5f), Actions.fadeIn(0.5f)))
+  this += Actions.forever(Actions.sequence(Actions.fadeOut(1f), Actions.fadeIn(1f)))
 }
 
 fun Label.removeSelectionEffect() {

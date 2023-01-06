@@ -10,7 +10,7 @@ import com.hvs.annihilation.Annihilation
 fun main() {
     Lwjgl3Application(Annihilation(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("Annihilation")
-        setWindowedMode(1280, 720)
+        setMaximized(false)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
 }

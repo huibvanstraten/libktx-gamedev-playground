@@ -6,11 +6,13 @@ import com.hvs.annihilation.input.buttoninput.ButtonBInput
 import com.hvs.annihilation.input.buttoninput.ButtonLeftInput
 import com.hvs.annihilation.input.buttoninput.ButtonRightInput
 import com.hvs.annihilation.input.buttoninput.ButtonStartInput
+import com.hvs.annihilation.input.handler.GameInputHandler
 import ktx.log.logger
+import java.util.EventListener
 
 class InputConverter(
-    private val inputHandler: InputHandler
-) : XboxInputProcessor {
+    private val gameInputHandler: GameInputHandler
+) : XboxInputProcessor, EventListener {
 
     private var pressedButtons = mutableSetOf<Int>()
 
@@ -23,18 +25,14 @@ class InputConverter(
         if (buttonCode.isImplementedButton()) {
             pressedButtons.add(buttonCode)
             when (buttonCode) {
-                A -> inputHandler.handleInput(ButtonAInput(buttonCode, buttonDown = true, buttonUp = false))
-                B -> inputHandler.handleInput(ButtonBInput(buttonCode, buttonDown = true, buttonUp = false))
-                LEFT -> inputHandler.handleInput(ButtonLeftInput(buttonCode,buttonDown = true, buttonUp = false))
-                RIGHT -> inputHandler.handleInput(ButtonRightInput(buttonCode,buttonDown = true, buttonUp = false))
-//                START -> inputHandler.handleInput(ButtonStartInput(buttonCode, buttonDown = true, buttonUp = false))
+                A -> gameInputHandler.handleInput(ButtonAInput(buttonCode, buttonDown = true, buttonUp = false))
+                B -> gameInputHandler.handleInput(ButtonBInput(buttonCode, buttonDown = true, buttonUp = false))
+                LEFT -> gameInputHandler.handleInput(ButtonLeftInput(buttonCode,buttonDown = true, buttonUp = false))
+                RIGHT -> gameInputHandler.handleInput(ButtonRightInput(buttonCode,buttonDown = true, buttonUp = false))
+                START -> gameInputHandler.handleInput(ButtonStartInput(buttonCode, buttonDown = true, buttonUp = false))
             }
             return true
         }
-        if (buttonCode == START) {
-
-        }
-
         return false
     }
 
@@ -43,15 +41,15 @@ class InputConverter(
             when (buttonCode) {
                 A -> {
                     log.debug { "Pressing A" }
-                    inputHandler.handleInput(ButtonAInput(buttonCode, buttonDown = false, buttonUp = true))
+                    gameInputHandler.handleInput(ButtonAInput(buttonCode, buttonDown = false, buttonUp = true))
                     pressedButtons.remove(A)
                 }
                 LEFT -> {
-                    inputHandler.handleInput(ButtonLeftInput(buttonCode, buttonDown = false, buttonUp = true))
+                    gameInputHandler.handleInput(ButtonLeftInput(buttonCode, buttonDown = false, buttonUp = true))
                     pressedButtons.remove(LEFT)
                 }
                 RIGHT ->  {
-                    inputHandler.handleInput(ButtonRightInput(buttonCode, buttonDown = false, buttonUp = true))
+                    gameInputHandler.handleInput(ButtonRightInput(buttonCode, buttonDown = false, buttonUp = true))
                     pressedButtons.remove(RIGHT)
                 }
             }
@@ -62,7 +60,7 @@ class InputConverter(
 
     private fun Int.isMovementKey(): Boolean = this == LEFT || this == RIGHT
 
-    private fun Int.isImplementedButton(): Boolean = this == LEFT || this == RIGHT || this == B || this == A
+    private fun Int.isImplementedButton(): Boolean = this == LEFT || this == RIGHT || this == B || this == A || this == START
 
     private fun isPressed(button: Int): Boolean = button in pressedButtons
 

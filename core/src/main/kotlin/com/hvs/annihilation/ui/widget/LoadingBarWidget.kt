@@ -22,7 +22,7 @@ import ktx.scene2d.actor
 @Scene2dDsl
 class LoadingBarWidget(
     private val bundle: I18NBundle,
-    private val skin: Skin,
+    skin: Skin,
     private val loadingBar: Image = Image(skin[Drawables.BAR_GREEN]),
     private val barBackground: Image = Image(skin[Drawables.BAR_BACKGROUND]),
     private val label: Label = Label(bundle["loading"], skin, LabelStyles.LARGE.name)

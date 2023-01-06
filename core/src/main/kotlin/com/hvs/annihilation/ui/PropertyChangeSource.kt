@@ -3,6 +3,7 @@ package com.hvs.annihilation.ui
 import kotlin.reflect.KProperty
 
 abstract class PropertyChangeSource {
+
     @PublishedApi
     internal val listenersMap = mutableMapOf<KProperty<*>, MutableList<(Any) -> Unit>>()
 

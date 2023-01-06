@@ -8,7 +8,6 @@ import com.hvs.annihilation.ui.widget.otherWidget
 import com.hvs.annihilation.ui.widget.playerInfoWidget
 import ktx.scene2d.KTable
 import ktx.scene2d.KWidget
-import ktx.scene2d.Scene2DSkin
 import ktx.scene2d.Scene2dDsl
 import ktx.scene2d.actor
 import ktx.scene2d.table
@@ -17,7 +16,7 @@ import ktx.scene2d.table
 class GameView(
     model: GameModel,
     skin: Skin
-) : Table(skin), KTable {
+) : View, Table(skin), KTable {
 
      private val playerInfo: PlayerInfoWidget
 
@@ -25,12 +24,12 @@ class GameView(
         //fill entire viewport/stage/screen
         setFillParent(true)
         table {
-            this@GameView.playerInfo =playerInfoWidget()
+            this@GameView.playerInfo =playerInfoWidget(skin)
             it.expand().width(80f).height(30f).top().left()
         }
 
         table {
-            otherWidget()
+            otherWidget(skin)
             it.expand().width(80f).height(30f).bottom().right()
         }
 
@@ -45,6 +44,6 @@ class GameView(
 @Scene2dDsl
 fun <S> KWidget<S>.gameView(
     model: GameModel,
-    skin: Skin = Scene2DSkin.defaultSkin,
+    skin: Skin,
     init: GameView.(S) -> Unit = {}
 ): GameView = actor(GameView(model, skin), init)

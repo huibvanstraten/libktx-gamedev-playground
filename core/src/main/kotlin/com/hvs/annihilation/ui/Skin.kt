@@ -23,7 +23,8 @@ enum class Drawables(val atlasKey: String) {
 
 enum class LabelStyles {
     MAP_INFO,
-    LARGE
+    LARGE,
+    DEFAULT
 }
 
 enum class FontType(val skinKey: String) {
@@ -48,14 +49,11 @@ fun createSkin(atlas: TextureAtlas): Skin {
         // default label style
         label { font = skin.getFont(FontType.DEFAULT.skinKey) }
         label(LabelStyles.LARGE.name) { font = skin.getFont(FontType.LARGE.skinKey) }
-        label(LabelStyles.MAP_INFO.name) {
-            font = skin.getFont(FontType.LARGE.skinKey)
-        }
+        label(LabelStyles.DEFAULT.name) { font = skin.getFont(FontType.DEFAULT.skinKey) }
+        label(LabelStyles.MAP_INFO.name) { font = skin.getFont(FontType.LARGE.skinKey) }
     }
 
     return Scene2DSkin.defaultSkin
 }
 
-fun disposeSkin() {
-    Scene2DSkin.defaultSkin.disposeSafely()
-}
+fun disposeSkin() = Scene2DSkin.defaultSkin.disposeSafely()

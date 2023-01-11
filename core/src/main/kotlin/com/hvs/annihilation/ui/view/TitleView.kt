@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.I18NBundle
 import com.hvs.annihilation.ui.LabelStyles
 import com.hvs.annihilation.ui.addSelectionEffect
-import com.hvs.annihilation.ui.model.StartModel
+import com.hvs.annihilation.ui.model.TitleModel
 import com.hvs.annihilation.ui.widget.startWidget
 import ktx.scene2d.KTable
 import ktx.scene2d.KWidget
@@ -18,15 +18,14 @@ import ktx.scene2d.label
 import ktx.scene2d.table
 
 @Scene2dDsl
-class StartView(
+class TitleView(
     bundle: I18NBundle,
-    model: StartModel,
+    model: TitleModel,
     startUiStage: Stage,
     skin: Skin
 ) : View, Table(skin), KTable {
 
     private val pressStartLabel: Label
-
 
     init {
         //fill entire viewport/stage/screen
@@ -39,7 +38,7 @@ class StartView(
             }
             row()
             table {
-               this@StartView.pressStartLabel = label("Press Start", LabelStyles.LARGE.name) { cell ->
+               this@TitleView.pressStartLabel = label("Press Start", LabelStyles.LARGE.name) { cell ->
                     setAlignment(Align.center)
                     cell.fillX().padTop(25f).row()
                 }
@@ -51,10 +50,10 @@ class StartView(
 }
 
 @Scene2dDsl
-inline fun <S> KWidget<S>.startView(
-    model: StartModel,
+inline fun <S> KWidget<S>.titleView(
+    model: TitleModel,
     bundle: I18NBundle,
     startUiStage: Stage,
     skin: Skin,
-    init: StartView.(S) -> Unit = {}
-) = actor(StartView(bundle, model, startUiStage, skin), init)
+    init: TitleView.(S) -> Unit = {}
+) = actor(TitleView(bundle, model, startUiStage, skin), init)

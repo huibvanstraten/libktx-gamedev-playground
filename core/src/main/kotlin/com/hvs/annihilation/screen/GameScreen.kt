@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.github.quillraven.fleks.World
 import com.hvs.annihilation.assets.TextureAtlasAssets
-import com.hvs.annihilation.audio.AudioSystem
+import com.hvs.annihilation.ecs.audio.AudioSystem
 import com.hvs.annihilation.ecs.animation.AnimationSystem
 import com.hvs.annihilation.ecs.camera.CameraSystem
 import com.hvs.annihilation.ecs.render.RenderSystem

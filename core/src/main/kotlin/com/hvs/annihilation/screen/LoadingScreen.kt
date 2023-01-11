@@ -12,11 +12,11 @@ import com.hvs.annihilation.assets.MusicAssets
 import com.hvs.annihilation.assets.SoundAssets
 import com.hvs.annihilation.assets.TextureAtlasAssets
 import com.hvs.annihilation.assets.loadAsync
-import com.hvs.annihilation.audio.AudioSystem
 import com.hvs.annihilation.ecs.ai.AiComponent
 import com.hvs.annihilation.ecs.ai.AiSystem
 import com.hvs.annihilation.ecs.animation.AnimationSystem
 import com.hvs.annihilation.ecs.attack.AttackSystem
+import com.hvs.annihilation.ecs.audio.AudioSystem
 import com.hvs.annihilation.ecs.camera.CameraSystem
 import com.hvs.annihilation.ecs.collision.CollisionDespawnSystem
 import com.hvs.annihilation.ecs.collision.CollisionSpawnSystem

@@ -17,11 +17,11 @@ class InputConverter(
     private var pressedButtons = mutableSetOf<Int>()
 
     init {
+        removeXboxControllerListener()
         addXboxControllerListener()
     }
 
     override fun buttonDown(controller: Controller, buttonCode: Int): Boolean {
-
         if (buttonCode.isImplementedButton()) {
             pressedButtons.add(buttonCode)
             when (buttonCode) {

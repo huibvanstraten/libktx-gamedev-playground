@@ -57,12 +57,12 @@ class OptionsView(
                     setAlignment(Align.left)
                     cell.fillX().row()
                 }
-                label("options", LabelStyles.DEFAULT.name) { cell ->
+                label("Controller mapping", LabelStyles.DEFAULT.name) { cell ->
                     selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().row()
                 }
-                label("back", LabelStyles.DEFAULT.name) { cell ->
+                label("Back", LabelStyles.DEFAULT.name) { cell ->
                     selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().row()
@@ -81,7 +81,7 @@ class OptionsView(
 @Scene2dDsl
 fun <S> KWidget<S>.optionsView(
     model: OptionsModel,
-    skin: Skin = Scene2DSkin.defaultSkin,
+    skin: Skin,
     bundle: I18NBundle,
     menuOptions: GdxArray<Label>,
     init: OptionsView.(S) -> Unit = {}

@@ -38,12 +38,13 @@ class GameScreen(
     private val skin: Skin,
     private val entityWorld: World,
     private val physicsWorld: com.badlogic.gdx.physics.box2d.World,
+    private val entity: PlayerEntity
 ) : KtxScreen, EventListener {
 
-    lateinit var inputConverter: InputConverter
     private val textureAtlas = TextureAtlas(TextureAtlasAssets.GAMEUI.filePath)
     private var paused: Boolean = false
 
+    private lateinit var inputConverter: InputConverter
     private lateinit var gameView: GameView
     lateinit var currentMap: TiledMap
 
@@ -52,7 +53,7 @@ class GameScreen(
     }
 
     override fun show() {
-        inputConverter = InputConverter(GameInputHandler(PlayerEntity(entityWorld.entity(), entityWorld), gameStage))
+        inputConverter = InputConverter(GameInputHandler(entity, gameStage))
 
         log.debug { "This is the GameScreen" }
 

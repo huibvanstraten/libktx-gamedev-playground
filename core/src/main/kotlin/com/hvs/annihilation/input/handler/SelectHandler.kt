@@ -4,6 +4,7 @@ import com.badlogic.gdx.controllers.Controller
 import com.hvs.annihilation.input.XboxInputProcessor
 import com.hvs.annihilation.screen.GameScreen
 import com.hvs.annihilation.screen.TitleScreen
+import com.hvs.annihilation.state.PlayerEntity
 import ktx.log.logger
 
 class SelectHandler(

@@ -18,11 +18,11 @@ import ktx.scene2d.actor
 import ktx.scene2d.label
 import ktx.scene2d.table
 
-class ControllerMappingView(
+class MappingActionView(
     model: ControllerMappingModel,
     skin: Skin,
     bundle: I18NBundle,
-    controllerMappingOptions: GdxArray<Label>
+    mappingControllerOptions: GdxArray<Label>
 ) : View, Table(skin), KTable {
 
     init {
@@ -30,59 +30,47 @@ class ControllerMappingView(
         val titlePadding = 15f
         table {
             background = skin[Drawables.MENU_BACKGROUND]
-            table {
-                label("Controller Mapping", LabelStyles.LARGE.name, skin) {
+            table { it ->
+                label("Choose action", LabelStyles.LARGE.name, skin) {
                     this.setAlignment(Align.center)
                     it.expandX().fill()
                         .pad(8f, titlePadding, 0f, titlePadding)
                         .top()
                         .row()
                 }
-
-                table { menuTableCell ->
-                    label("A-Button", LabelStyles.DEFAULT.name) { cell ->
-                        controllerMappingOptions.add(this@label)
-                        setAlignment(Align.left)
+                table {
+                    label("Jump", LabelStyles.DEFAULT.name) { cell ->
+                        mappingControllerOptions.add(this@label)
+                        setAlignment(Align.right)
                         cell.fillX().padTop(25f).row()
                     }.apply {
                         this.addSelectionEffect()
                     }
-                    label("B-Button", LabelStyles.DEFAULT.name) { cell ->
-                        controllerMappingOptions.add(this@label)
-                        setAlignment(Align.left)
+                    label("Attack", LabelStyles.DEFAULT.name) { cell ->
+                        mappingControllerOptions.add(this@label)
+                        setAlignment(Align.right)
                         cell.fillX().row()
                     }
-                    label("X-Button", LabelStyles.DEFAULT.name) { cell ->
-                        controllerMappingOptions.add(this@label)
-                        setAlignment(Align.left)
-                        cell.fillX().row()
-                    }
-                    label("Y-Button", LabelStyles.DEFAULT.name) { cell ->
-                        controllerMappingOptions.add(this@label)
-                        setAlignment(Align.left)
-                        cell.fillX().row()
-                    }
-
                     label("Back", LabelStyles.DEFAULT.name) { cell ->
-                        controllerMappingOptions.add(this@label)
-                        setAlignment(Align.left)
+                        mappingControllerOptions.add(this@label)
+                        setAlignment(Align.right)
                         cell.fillX().row()
                     }
-
-                    pack()
-                    left()
-                    menuTableCell.expand().fill()
                 }
+                pack()
+                left()
+                it.expand().fill()
             }
         }
     }
 }
 
 @Scene2dDsl
-fun <S> KWidget<S>.controllerMappingView(
+fun <S> KWidget<S>.controllerMappingMappingView(
     model: ControllerMappingModel,
     skin: Skin,
     bundle: I18NBundle,
     controllerMappingOptions: GdxArray<Label>,
-    init: ControllerMappingView.(S) -> Unit = {}
-): ControllerMappingView = actor(ControllerMappingView(model, skin, bundle, controllerMappingOptions), init)
+    init: MappingActionView.(S) -> Unit = {}
+): MappingActionView =
+    actor(MappingActionView(model, skin, bundle, controllerMappingOptions), init)

@@ -34,6 +34,7 @@ import com.hvs.annihilation.ecs.render.RenderSystem
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem
 import com.hvs.annihilation.ecs.state.StateComponent
 import com.hvs.annihilation.ecs.state.StateSystem
+import com.hvs.annihilation.state.PlayerEntity
 import com.hvs.annihilation.ui.createSkin
 import com.hvs.annihilation.ui.widget.LoadingBarWidget
 import com.hvs.annihilation.ui.widget.loadingBarWidget
@@ -113,6 +114,7 @@ class LoadingScreen(
         val skin = createSkin(TextureAtlas(TextureAtlasAssets.GAMEUI.filePath))
         val physicsWorld = createWorld(gravity = earthGravity).apply { autoClearForces = false }
         val world: World = entityWorld(gameStage, tempUiStage, physicsWorld)
+        val playerEntity: PlayerEntity = PlayerEntity(world.entity(), world)
 
         // all assets are loaded -> add remaining screens to our game now because
         // now they can access the different assets that they need
@@ -122,7 +124,8 @@ class LoadingScreen(
                 gameStage,
                 uiStage,
                 bundle,
-                world
+                world,
+                playerEntity
             )
         )
         game.addScreen(
@@ -131,7 +134,8 @@ class LoadingScreen(
                 tempUiStage,
                 skin,
                 world,
-                physicsWorld
+                physicsWorld,
+                playerEntity
             )
         )
         loaded = true

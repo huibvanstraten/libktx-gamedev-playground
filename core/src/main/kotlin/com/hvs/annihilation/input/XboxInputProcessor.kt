@@ -13,10 +13,8 @@ interface XboxInputProcessor : ControllerListener {
   fun addXboxControllerListener() {
     log.debug { "getting controller" }
     Controllers.getControllers()
-      .firstOrNull { CONTROLLER_NAME == it.name }//TODO: game controllers can have weird names. Other check is necessary
+      .firstOrNull { CONTROLLER_NAME == it.name }
       ?.run {
-        // to avoid adding the same listener twice, we will first remove it.
-        // unfortunately, there is no "contains" method that is why we do it like this.
         removeListener(this@XboxInputProcessor)
         addListener(this@XboxInputProcessor)
         log.debug { "controller = ${this.name}" }

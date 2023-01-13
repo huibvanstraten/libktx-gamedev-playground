@@ -44,7 +44,11 @@ class SelectView(
                 setAlignment(Align.center)
                 cell.fillX().padTop(25f).row()
             }
-
+            label("options", LabelStyles.LARGE.name) { cell ->
+                menuOptions.add(this)
+                setAlignment(Align.center)
+                cell.fillX().row()
+            }
             label(bundle["continue"], LabelStyles.LARGE.name) { cell ->
                 menuOptions.add(this)
                 setAlignment(Align.center)

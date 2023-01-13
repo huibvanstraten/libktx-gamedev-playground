@@ -11,6 +11,7 @@ import com.hvs.annihilation.ui.LabelStyles
 import com.hvs.annihilation.ui.addSelectionEffect
 import com.hvs.annihilation.ui.get
 import com.hvs.annihilation.ui.model.OptionsModel
+import com.hvs.annihilation.ui.widget.audioVolumeWidget
 import ktx.actors.onClick
 import ktx.collections.GdxArray
 import ktx.scene2d.KTable
@@ -25,17 +26,17 @@ class OptionsView(
     model: OptionsModel,
     skin: Skin,
     bundle: I18NBundle,
-    menuOptions: GdxArray<Label>
+    selectOptions: GdxArray<Label>
 ) : View, Table(skin), KTable {
 
     init {
         setFillParent(true)
         val titlePadding = 15f
 
-        table {outerTableCell ->
+        table { outerTableCell ->
             background = skin[Drawables.MENU_BACKGROUND]
 
-            label("Menu", LabelStyles.LARGE.name, skin) {
+            label("Options", LabelStyles.LARGE.name, skin) {
                 this.setAlignment(Align.center)
                 it.expandX().fill()
                     .pad(8f, titlePadding, 0f, titlePadding)
@@ -44,25 +45,25 @@ class OptionsView(
             }
 
             table { menuTableCell ->
-                label(bundle["newGame"], LabelStyles.DEFAULT.name) { cell ->
-                    menuOptions.add(this@label)
+                label("Sound", LabelStyles.DEFAULT.name) { cell ->
+                    selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().padTop(25f).row()
                 }.apply {
                     this.addSelectionEffect()
                 }
-                label(bundle["continue"], LabelStyles.DEFAULT.name) { cell ->
-                    menuOptions.add(this@label)
+                label("Volume", LabelStyles.DEFAULT.name) { cell ->
+                    selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().row()
                 }
-                label("sth", LabelStyles.DEFAULT.name) { cell ->
-                    menuOptions.add(this@label)
+                label("Controller mapping", LabelStyles.DEFAULT.name) { cell ->
+                    selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().row()
                 }
-                label(bundle["quitGame"], LabelStyles.DEFAULT.name) { cell ->
-                    menuOptions.add(this@label)
+                label("Back", LabelStyles.DEFAULT.name) { cell ->
+                    selectOptions.add(this@label)
                     setAlignment(Align.left)
                     cell.fillX().row()
                 }.onClick { Gdx.app.exit() }
@@ -71,6 +72,7 @@ class OptionsView(
                 left()
                 menuTableCell.expand().fill()
             }
+            table { audioVolumeWidget(bundle["music"]) { cell -> cell.fillX().padLeft(25f).row() } }
             outerTableCell.expand().width(300f).height(200f).left().center()
         }
     }
@@ -79,7 +81,7 @@ class OptionsView(
 @Scene2dDsl
 fun <S> KWidget<S>.optionsView(
     model: OptionsModel,
-    skin: Skin = Scene2DSkin.defaultSkin,
+    skin: Skin,
     bundle: I18NBundle,
     menuOptions: GdxArray<Label>,
     init: OptionsView.(S) -> Unit = {}

@@ -14,7 +14,7 @@ import com.hvs.annihilation.ui.propertyNotify
 
 class GameModel(
     world: World,
-    stage: Stage,
+    uiStage: Stage,
 ) : PropertyChangeSource(), EventListener {
 
     private val playerCmps: ComponentMapper<PlayerComponent> = world.mapper()
@@ -23,7 +23,7 @@ class GameModel(
     var playerLife by propertyNotify(1f)
 
     init {
-        stage.addListener(this)
+        uiStage.addListener(this)
     }
 
     override fun handle(event: Event): Boolean {

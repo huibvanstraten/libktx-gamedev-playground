@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.github.quillraven.fleks.World
 import com.hvs.annihilation.assets.TextureAtlasAssets
-import com.hvs.annihilation.audio.AudioSystem
+import com.hvs.annihilation.ecs.audio.AudioSystem
 import com.hvs.annihilation.ecs.animation.AnimationSystem
 import com.hvs.annihilation.ecs.camera.CameraSystem
 import com.hvs.annihilation.ecs.render.RenderSystem
@@ -38,21 +38,23 @@ class GameScreen(
     private val skin: Skin,
     private val entityWorld: World,
     private val physicsWorld: com.badlogic.gdx.physics.box2d.World,
+    private val entity: PlayerEntity
 ) : KtxScreen, EventListener {
 
-    private val inputConverter: InputConverter
     private val textureAtlas = TextureAtlas(TextureAtlasAssets.GAMEUI.filePath)
     private var paused: Boolean = false
 
+    private lateinit var inputConverter: InputConverter
     private lateinit var gameView: GameView
     lateinit var currentMap: TiledMap
 
     init {
         gameStage.addListener(this)
-        inputConverter = InputConverter(GameInputHandler(PlayerEntity(entityWorld.entity(), entityWorld), gameStage))
     }
 
     override fun show() {
+        inputConverter = InputConverter(GameInputHandler(entity, gameStage))
+
         log.debug { "This is the GameScreen" }
 
         uiStage.clear()

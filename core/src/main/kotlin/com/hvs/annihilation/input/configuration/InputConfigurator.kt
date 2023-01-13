@@ -15,11 +15,12 @@ import com.hvs.annihilation.input.buttoninput.ButtonRightInput
 import com.hvs.annihilation.input.buttoninput.Input
 import com.hvs.annihilation.state.PlayerEntity
 
-class InputConfigurator(  //TODO: configurations need to be available and put in the mappedCommands map
+class InputConfigurator(
+    private val entity: PlayerEntity
 ) {
 
-    fun mapCommandsToEntity(entity: PlayerEntity): InputConfig = InputConfig(
-        mapOf(
+    fun presetInputMap(): InputConfig = InputConfig(
+        mutableMapOf(
             ButtonBInput(XboxInputProcessor.BUTTON_B, true, false) to AttackCommand(entity),
             ButtonLeftInput(XboxInputProcessor.BUTTON_LEFT, true, false) to MoveLeftCommand(entity),
             ButtonLeftInput(XboxInputProcessor.BUTTON_LEFT, false, true) to MoveStopCommand(entity),
@@ -30,6 +31,24 @@ class InputConfigurator(  //TODO: configurations need to be available and put in
         )
     )
 
-    //with already preset commands
-    fun mapCommands(commands: Map<Input, ActionCommand>): InputConfig = InputConfig(commands)
+    fun mapCommandsToEntity(
+        commands: Map<Input, Int>
+    ): InputConfig {
+        val defaultConfig = presetInputMap()
+        val configuredButtons = mutableMapOf<Input, ActionCommand>()
+        commands.forEach {
+            configuredButtons[it.key] = intToCommand(it.value)
+        }
+
+        defaultConfig.mappedCommands.putAll(configuredButtons)
+
+        return defaultConfig
+    }
+
+    private fun intToCommand(command: Int): ActionCommand =
+        when (command) {
+            0 -> JumpCommand(entity)
+            1 -> AttackCommand(entity)
+            else -> JumpCommand(entity)
+        }
 }

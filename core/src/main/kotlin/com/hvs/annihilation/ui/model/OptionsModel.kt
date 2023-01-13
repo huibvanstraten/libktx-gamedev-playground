@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.fleks.World
 
 class OptionsModel(
-    world: World,
     stage: Stage
 ): EventListener {
 

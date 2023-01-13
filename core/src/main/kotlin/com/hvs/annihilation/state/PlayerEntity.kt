@@ -46,9 +46,7 @@ class PlayerEntity(
     private val attackAction: AttackAction = AttackAction(world)
 ): com.hvs.annihilation.state.Entity {
 
-    private val inputConfigurator: InputConfigurator = InputConfigurator()
-
-    val inputConfig: InputConfig = inputConfigurator.mapCommandsToEntity(this)
+    var inputConfig: InputConfig = InputConfigurator(this).presetInputMap()
 
     fun jump() {
         jumpAction.jump()

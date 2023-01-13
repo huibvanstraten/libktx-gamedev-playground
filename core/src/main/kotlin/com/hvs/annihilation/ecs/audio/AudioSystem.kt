@@ -1,4 +1,4 @@
-package com.hvs.annihilation.audio
+package com.hvs.annihilation.ecs.audio
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Music

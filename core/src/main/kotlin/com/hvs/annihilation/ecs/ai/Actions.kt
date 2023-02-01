@@ -13,7 +13,7 @@ import ktx.log.logger
 import ktx.math.vec2
 
 abstract class Action : LeafTask<AiEntity>() {
-    val entity: AiEntity
+    val slime: AiEntity
         get() = `object`
 
     override fun copyTo(task: Task<AiEntity>): Task<AiEntity> = task
@@ -28,7 +28,7 @@ class IdleTask(
 
     override fun execute(): Status {
         if (status != Status.RUNNING) {
-            entity.animation((AnimationType.IDLE))
+            slime.animation((AnimationType.IDLE))
             currentDuration = duration?.nextFloat() ?: 1f
             return Status.RUNNING
         }
@@ -51,35 +51,35 @@ class IdleTask(
 }
 
 class WanderTask: Action() {
-    private val startPosition = vec2()
-    private val targetPosition = vec2()
+    private val startLocation = vec2()
+    private val targetLocation = vec2()
 
     override fun execute(): Status {
-        if (status != Status.RUNNING) {
-            if (startPosition.isZero) {
-                startPosition.set(entity.position)
+        when {
+            status != Status.RUNNING -> {
+                if (startLocation.isZero) {
+                    startLocation.set(slime.location)
+                }
+                slime.animation(AnimationType.RUN)
+                targetLocation.set(startLocation)
+                targetLocation.x += MathUtils.random(-3f, 3f)
+                targetLocation.y = slime.location.y
+                slime.moveTo(targetLocation)
+                slime.moveSlow(true)
+                return Status.RUNNING
             }
-            entity.animation(AnimationType.RUN)
-            targetPosition.set(startPosition)
-            targetPosition.x += MathUtils.random(-3f, 3f)
-            log.debug { "Target X = ${targetPosition.x}" }
-            targetPosition.y += MathUtils.random(-3f, 3f)
-            log.debug { "Target Y = ${targetPosition.y}" }
-            entity.moveTo(targetPosition)
-            entity.moveSlow(true)
-            return Status.RUNNING
-        }
-
-        if (entity.inRange(1.5f, targetPosition)) {
-            entity.stopMovement()
-            return Status.SUCCEEDED
+            slime.inRange(0.5f, targetLocation) -> {
+                slime.stopMovement()
+                return Status.SUCCEEDED
+            }
+            slime.findNearbyEnemy() -> return Status.SUCCEEDED
         }
 
         return Status.RUNNING
     }
 
     override fun end() {
-        entity.moveSlow(false)
+        slime.moveSlow(false)
     }
 
     companion object {
@@ -91,14 +91,14 @@ class AttackTask: Action() {
 
     override fun execute(): Status {
         if (status != Status.RUNNING) {
-            entity.animation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, true)
-            entity.startAttack()
+            slime.animation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, true)
+            slime.startAttack()
             return Status.RUNNING
         }
 
-        if (entity.isAnimationDone) {
-            entity.animation(AnimationType.IDLE)
-            entity.stopMovement()
+        if (slime.isAnimationDone) {
+            slime.animation(AnimationType.IDLE)
+            slime.stopMovement()
             return Status.SUCCEEDED
         }
 

@@ -37,10 +37,10 @@ class InputConverter(
     }
 
     override fun buttonUp(controller: Controller, buttonCode: Int): Boolean {
-        if (buttonCode.isMovementKey()) {
+        if (buttonCode.isImplementedButton()) {
             when (buttonCode) {
                 A -> {
-                    log.debug { "Pressing A" }
+                    log.debug { "releasing A" }
                     gameInputHandler.handleInput(ButtonAInput(buttonCode, buttonDown = false, buttonUp = true))
                     pressedButtons.remove(A)
                 }

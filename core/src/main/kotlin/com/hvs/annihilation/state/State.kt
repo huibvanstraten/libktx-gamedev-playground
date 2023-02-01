@@ -65,10 +65,10 @@ enum class DefaultState : EntityState {
             with(entity.stateComp) {
                 if (entity.isFalling(entity.physicsComp, collision) || stateTime >= entity.jumpComp.maxJumpTime) {
                     // player is in mid-air and falling down OR player exceeds maximum jump time
-                    stateMachine.changeState(FALL)
+                    entity.setState(FALL)
                 } else if (collision.numGroundContacts > 0 && entity.jumpComp.order == JumpOrder.NONE) {
                     // player is on ground again
-                    stateMachine.changeState(IDLE)
+                    entity.setState(IDLE)
                 } else {
                     return
                 }

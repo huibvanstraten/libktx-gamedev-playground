@@ -17,8 +17,8 @@ abstract class MoveAction(
     protected fun updatePlayerMovement() {
         playerEntities.forEach { player ->
             with (moveComponents[player]) {
-                cos = playerCos
-                sin = playerSin
+                y = playerCos
+                x = playerSin
             }
         }
     }

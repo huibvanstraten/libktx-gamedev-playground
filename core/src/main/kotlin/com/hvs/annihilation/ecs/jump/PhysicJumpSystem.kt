@@ -45,6 +45,6 @@ class PhysicJumpSystem(
     }
 
     companion object {
-        val jumpAlpha: Interpolation = Interpolation.pow2Out
+        val jumpAlpha: Interpolation = Interpolation.elasticOut
     }
 }

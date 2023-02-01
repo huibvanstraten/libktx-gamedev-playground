@@ -1,8 +1,6 @@
 package com.hvs.annihilation.state
 
 import com.badlogic.gdx.graphics.g2d.Animation
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
@@ -24,8 +22,6 @@ import com.hvs.annihilation.ecs.state.StateComponent
 import com.hvs.annihilation.enums.AnimationType
 import com.hvs.annihilation.input.configuration.InputConfig
 import com.hvs.annihilation.input.configuration.InputConfigurator
-import ktx.math.component1
-import ktx.math.component2
 
 class PlayerEntity(
     private val entity: Entity,
@@ -78,7 +74,7 @@ class PlayerEntity(
     val wantsToRun: Boolean
         get() {
             val moveComp = moveComponents[entity]
-            return moveComp.sin != 0f
+            return moveComp.x != 0f
         }
 
     val wantsToAttack: Boolean
@@ -143,56 +139,10 @@ class PlayerEntity(
         with(moveComponents[entity]) { root = enable }
     }
 
-    fun stopMovement() {
-        with(moveComponents[entity]) {
-            cos = 0f
-            sin = 0f
-        }
-    }
-
-    fun moveAround(area: Vector2) {
-        val (areaX, areaY) = area
-        val physicsComp = physicsComponents[entity]
-        val (sourceX, sourceY) = physicsComp.body.position
-
-        with(moveComponents[entity]) {
-            val angleRadiant = MathUtils.atan2( areaY - sourceY, areaX - sourceX)
-            cos = MathUtils.cos(angleRadiant)
-            sin = MathUtils.sin(angleRadiant)
-        }
-    }
-
-    fun inRange(range: Float, target: Vector2): Boolean {
-        val physicsComp = physicsComponents[entity]
-        val (sourceX, sourceY) = physicsComp.body.position
-        val (offsetX, offsetY) = physicsComp.offset
-        var (sizeX, sizeY) =physicsComp.size
-        sizeX += range
-        sizeY += range
-
-        TEMP_RECTANGLE.set(
-            sourceX + offsetX - sizeX * 0.5f,
-            sourceY + offsetY - sizeY * 0.5f,
-            sizeX,
-            sizeY
-        )
-
-        return TEMP_RECTANGLE.contains(target)
-    }
-
-    fun moveSlow(slowed: Boolean) {
-        moveComponents[entity].slow = slowed
-    }
-
     fun startAttack() {
         with(attackComponents[entity]) { startAttack() }
     }
 
     fun isFalling(physic: PhysicsComponent, collision: CollisionComponent) =
         physic.body.linearVelocity.y < 0f && collision.numGroundContacts == 0
-
-
-    companion object {
-        private val TEMP_RECTANGLE = Rectangle()
-    }
 }

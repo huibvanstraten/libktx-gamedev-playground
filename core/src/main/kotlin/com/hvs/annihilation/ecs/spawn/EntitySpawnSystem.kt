@@ -83,12 +83,35 @@ class EntitySpawnSystem(
                         userData = HIT_BOX_SENSOR
                     }
 
+                    // add a second fixture for ground contact for jumping
+                    if (entityConfig.bodyType != BodyDef.BodyType.DynamicBody) {
+                        box(
+                            width, height, entityConfig.physicsOffset
+                            ) {
+                            userData = GROUND_COLLISION_BOX
+                            isSensor = false
+                        }
+                    }
+
+
                     if (entityConfig.bodyType != BodyDef.BodyType.StaticBody) {
                         //collision box
                         val collisionHeight = height * 0.4f
                         val collisionOffset = vec2().apply { set(entityConfig.physicsOffset) }
                         collisionOffset.y -= height * 0.5f - collisionHeight * 0.5f
                         box(width, collisionHeight, collisionOffset)
+
+                        // ground sensor on dynamic entity foot
+                        box(
+                            entitySize.x * 0.5f,
+                            0.2f,
+                            vec2().apply { set(entityConfig.physicsOffset.x,
+                                -1f
+                            )}
+                        ) {
+                            userData = GROUND_TOUCH_SENSOR
+                            isSensor = false
+                        }
                     }
                 }
 
@@ -162,7 +185,9 @@ class EntitySpawnSystem(
         return false
     }
 
-    private fun setSpawnConfiguration(type: String): SpawnConfiguration = cachedSpawnConfigurations.getOrPut(type) {
+    private fun setSpawnConfiguration(
+        type: String
+    ): SpawnConfiguration = cachedSpawnConfigurations.getOrPut(type) {
         when (type) {
             "Player" -> SpawnConfiguration(
                 model = AnimationModel.PLAYER,
@@ -203,8 +228,10 @@ class EntitySpawnSystem(
     }
 
     companion object {
-        const val ACTION_SENSOR = "ActionSensor"
-        const val AI_SENSOR = "AiSensor"
+        const val ACTION_SENSOR = "actionSensor"
+        const val AI_SENSOR = "aiSensor"
         const val HIT_BOX_SENSOR = "hitBox"
+        const val GROUND_TOUCH_SENSOR = "groundTouchSensor"
+        const val GROUND_COLLISION_BOX = "collisionBox"
     }
 }

@@ -36,11 +36,9 @@ class PhysicsComponent {
             x: Int,
             y: Int,
             shape: Shape2D,
-            init: FixtureDefinition.() -> Unit = { Unit }
+            init: FixtureDefinition.() -> Unit = { }
         ): PhysicsComponent {
             when(shape) {
-
-                //TODO:  REFACTOR POLYLINE AND POLYGON
                 is Rectangle -> {
                     val bodyX = x + shape.x * UNIT_SCALE
                     val bodyY = y + shape.y * UNIT_SCALE
@@ -92,6 +90,8 @@ class PhysicsComponent {
                         }
                     }
                 }
+
+
                 else -> gdxError("Shape $shape is not supported")
             }
         }

@@ -51,8 +51,8 @@ class CollisionSpawnSystem(
                             fixedRotation = true
                             allowSleep = false
                             loop(
-                                vec2(0f, 0f),
-                                vec2(mapWidth, 0f),
+                                vec2(0f, -2f),
+                                vec2(mapWidth, -2f),
                                 vec2(mapWidth, mapHeight),
                                 vec2(0f, mapHeight)
                             )

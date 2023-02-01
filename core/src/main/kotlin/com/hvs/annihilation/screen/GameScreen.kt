@@ -50,6 +50,9 @@ class GameScreen(
 
     init {
         gameStage.addListener(this)
+        println(
+            "Player has entity "
+        )
     }
 
     override fun show() {

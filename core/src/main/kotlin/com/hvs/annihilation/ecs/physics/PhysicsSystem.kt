@@ -8,13 +8,13 @@ import com.badlogic.gdx.physics.box2d.ContactListener
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.Manifold
 import com.badlogic.gdx.physics.box2d.World
-import com.hvs.annihilation.ecs.collision.CollisionComponent
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.Fixed
 import com.github.quillraven.fleks.IteratingSystem
 import com.hvs.annihilation.ecs.ai.AiComponent
+import com.hvs.annihilation.ecs.collision.CollisionComponent
 import com.hvs.annihilation.ecs.image.ImageComponent
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem.Companion.ACTION_SENSOR
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem.Companion.AI_SENSOR
@@ -94,11 +94,22 @@ class PhysicsSystem(
             // keep track of nearby entities for tiled collision entities.
             // when there are no nearby entities then the collision object will be removed
             entityA in tiledCmps && entityB in collisionCmps && contact.isSensorA && !contact.isSensorB -> {
-                tiledCmps[entityA].nearbyEntities += entityB
-            }
+                tiledCmps[entityA].nearbyEntities += entityB }
+
             entityB in tiledCmps && entityA in collisionCmps && contact.isSensorB && !contact.isSensorA -> {
                 tiledCmps[entityB].nearbyEntities += entityA
             }
+
+            entityB in tiledCmps && entityA in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityA !in aiCmps -> {
+                    collisionCmps[entityA].numGroundContacts ++
+                        println("FIRST: ADDING NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityA].numGroundContacts}")
+                    }
+
+            entityA in tiledCmps && entityB in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityB !in aiCmps -> {
+                    collisionCmps[entityB].numGroundContacts ++
+                        println("SECOND: ADDING NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityB].numGroundContacts}")
+                    }
+
             // AI entities keep track of their nearby entities to have this information available
             // for their behavior. E.g. a slime entity will attack a player if he comes close
             entityA in aiCmps && entityB in collisionCmps && contact.fixtureA.userData == ACTION_SENSOR -> {
@@ -121,11 +132,22 @@ class PhysicsSystem(
         // -> simply remove entities all the time because the set will take care of correct removal calls
         when {
             entityA in tiledCmps && contact.isSensorA && !contact.isSensorB -> {
-                tiledCmps[entityA].nearbyEntities -= entityB
-            }
+                tiledCmps[entityA].nearbyEntities -= entityB }
+
             entityB in tiledCmps && contact.isSensorB && !contact.isSensorA -> {
                 tiledCmps[entityB].nearbyEntities -= entityA
             }
+
+            entityB in tiledCmps && entityA in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityA !in aiCmps -> {
+                collisionCmps[entityA].numGroundContacts --
+                println("FIRST: REmoving NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityA].numGroundContacts}")
+            }
+
+            entityA in tiledCmps && entityB in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityB !in aiCmps -> {
+                collisionCmps[entityB].numGroundContacts --
+                println("SECOND: removing NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityB].numGroundContacts}")
+            }
+
             entityA in aiCmps && contact.fixtureA.userData == AI_SENSOR -> {
                 aiCmps[entityA].nearByEntities - entityB
             }
@@ -138,8 +160,9 @@ class PhysicsSystem(
     override fun preSolve(contact: Contact, oldManifold: Manifold) {
         // only allow collision between Dynamic and Static bodies
         contact.isEnabled =
-            (contact.fixtureA.body.type == BodyDef.BodyType.StaticBody && contact.fixtureB.body.type == BodyDef.BodyType.DynamicBody) ||
-                    (contact.fixtureB.body.type == BodyDef.BodyType.StaticBody && contact.fixtureA.body.type == BodyDef.BodyType.DynamicBody)
+            (contact.fixtureA.body.type == BodyDef.BodyType.StaticBody && contact.fixtureB.body.type == BodyDef.BodyType.DynamicBody)
+            ||
+            (contact.fixtureB.body.type == BodyDef.BodyType.StaticBody && contact.fixtureA.body.type == BodyDef.BodyType.DynamicBody)
     }
 
     override fun postSolve(contact: Contact, impulse: ContactImpulse) = Unit

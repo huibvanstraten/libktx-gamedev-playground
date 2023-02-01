@@ -33,14 +33,11 @@ class AiEntity(
     private val playerComponents: ComponentMapper<PlayerComponent> = world.mapper()
 ):com.hvs.annihilation.state.Entity {
 
-    val position: Vector2
+    val location: Vector2
         get() = physicsComponents[entity].body.position
 
     val wantsToRun: Boolean
-        get() {
-            val moveComp = moveComponents[entity]
-            return moveComp.cos != 0f || moveComp.sin != 0f
-        }
+        get() = moveComponents[entity].y !=0f
 
     val wantsToAttack: Boolean
         get() = attackComponents.getOrNull(entity)?.doAttack ?: false
@@ -92,22 +89,29 @@ class AiEntity(
         with(moveComponents[entity]) { root = enable }
     }
 
-    fun stopMovement() {
-        with(moveComponents[entity]) {
-            sin = 0f
-            cos = 0f
-        }
+    fun stopMovement() = with(moveComponents[entity]) {
+        x = 0f
+        y = 0f
     }
 
     fun moveTo(target: Vector2) {
-        val (areaX, areaY) = target
+        val (targetX, targetY) = target
         val physicsComp = physicsComponents[entity]
         val (sourceX, sourceY) = physicsComp.body.position
 
         with(moveComponents[entity]) {
-            val angleRadiant = MathUtils.atan2( areaY - sourceY, areaX - sourceX)
-            sin = MathUtils.sin(angleRadiant)
-            cos = MathUtils.sin(angleRadiant)
+            val angleRadiant = MathUtils.atan2(targetY - sourceY, targetX - sourceX)
+            x = MathUtils.cos(angleRadiant)
+            y = MathUtils.sin(angleRadiant)
+        }
+    }
+
+    fun findNearbyEnemy(): Boolean {
+        with(aiComponents[entity]) {
+            val target = nearByEntities.firstOrNull {
+                it in playerComponents && !lifeComponents[it].isDead
+            }.also { if (it != null) println("PLAYER IS nearby") } ?: -1
+            return target != -1
         }
     }
 
@@ -115,7 +119,7 @@ class AiEntity(
         val physicsComp = physicsComponents[entity]
         val (sourceX, sourceY) = physicsComp.body.position
         val (offsetX, offsetY) = physicsComp.offset
-        var (sizeX, sizeY) =physicsComp.size
+        var (sizeX, sizeY) = physicsComp.size
         sizeX += range
         sizeY += range
 

@@ -21,6 +21,7 @@ import com.hvs.annihilation.ecs.camera.CameraSystem
 import com.hvs.annihilation.ecs.collision.CollisionDespawnSystem
 import com.hvs.annihilation.ecs.collision.CollisionSpawnSystem
 import com.hvs.annihilation.ecs.dead.DeadSystem
+import com.hvs.annihilation.ecs.debug.DebugSystem
 import com.hvs.annihilation.ecs.floatingtext.FloatingTextComponent
 import com.hvs.annihilation.ecs.floatingtext.FloatingTextSystem
 import com.hvs.annihilation.ecs.image.ImageComponent
@@ -114,7 +115,7 @@ class LoadingScreen(
         val skin = createSkin(TextureAtlas(TextureAtlasAssets.GAMEUI.filePath))
         val physicsWorld = createWorld(gravity = earthGravity).apply { autoClearForces = false }
         val world: World = entityWorld(gameStage, tempUiStage, physicsWorld)
-        val playerEntity: PlayerEntity = PlayerEntity(world.entity(), world)
+        val playerEntity = PlayerEntity(world.entity(), world)
 
         // all assets are loaded -> add remaining screens to our game now because
         // now they can access the different assets that they need
@@ -174,6 +175,7 @@ class LoadingScreen(
         system<FloatingTextSystem>()
         system<RenderSystem>()
         system<AudioSystem>()
+        system<DebugSystem>()
     }
 
     companion object {

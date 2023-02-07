@@ -42,6 +42,10 @@ class PlayerEntity(
     private val attackAction: AttackAction = AttackAction(world)
 ): com.hvs.annihilation.state.Entity {
 
+    init {
+        lifeComponents.getOrNull(entity)?.let { stateComponents[entity].stateMachine.globalState = GlobalState.CHECK_ALIVE }
+    }
+
     var inputConfig: InputConfig = InputConfigurator(this).presetInputMap()
 
     fun jump() {
@@ -83,6 +87,9 @@ class PlayerEntity(
     val attackComp: AttackComponent
         get() = attackComponents[entity]
 
+    val moveCmp: MoveComponent
+        get() = moveComponents[entity]
+
     val jumpComp: JumpComponent
         get() = jumpComponents[entity]
 
@@ -96,7 +103,7 @@ class PlayerEntity(
         get() = stateComponents[entity]
 
     val isDead: Boolean
-        get() = lifeComponents[entity].life <= 0f
+        get() = lifeComponents[entity].isDead
 
     fun animation(type: AnimationType, mode: Animation.PlayMode = Animation.PlayMode.LOOP, resetAnimation: Boolean = false) {
         with(animationComponents[entity]) {
@@ -124,7 +131,7 @@ class PlayerEntity(
     fun enableGlobalState(enable: Boolean) {
         with(stateComponents[entity]) {
             if (enable) {
-                stateMachine.globalState = DefaultGlobalState.CHECK_ALIVE
+                stateMachine.globalState = GlobalState.CHECK_ALIVE
             } else {
                 stateMachine.globalState = null
             }
@@ -133,10 +140,6 @@ class PlayerEntity(
 
     fun changeToPreviousState() {
         with(stateComponents[entity]) { nextState = stateMachine.previousState }
-    }
-
-    fun root(enable: Boolean) {
-        with(moveComponents[entity]) { root = enable }
     }
 
     fun startAttack() {

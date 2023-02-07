@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.utils.random.FloatDistribution
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.math.MathUtils
 import com.hvs.annihilation.enums.AnimationType
+import com.hvs.annihilation.event.EntityAggroEvent
 import com.hvs.annihilation.state.AiEntity
 import ktx.log.logger
 import ktx.math.vec2
@@ -34,9 +35,12 @@ class IdleTask(
         }
 
         currentDuration -= GdxAI.getTimepiece().deltaTime
-        if (currentDuration <= 0f) {
+        if (slime.findNearbyEnemy() || currentDuration <= 0f) {
+            // enemy nearby or idle time is over -> leave idle behavior
             return Status.SUCCEEDED
         }
+
+        // remain in idle state for the given duration
         return Status.RUNNING
     }
 
@@ -50,7 +54,11 @@ class IdleTask(
     }
 }
 
-class WanderTask: Action() {
+class WanderTask(
+    @JvmField
+    @TaskAttribute(required = true)
+    var range: Float = 0f
+): Action() {
     private val startLocation = vec2()
     private val targetLocation = vec2()
 
@@ -68,10 +76,12 @@ class WanderTask: Action() {
                 slime.moveSlow(true)
                 return Status.RUNNING
             }
-            slime.inRange(0.5f, targetLocation) -> {
+
+            slime.inRange(range, targetLocation) -> {
                 slime.stopMovement()
                 return Status.SUCCEEDED
             }
+
             slime.findNearbyEnemy() -> return Status.SUCCEEDED
         }
 
@@ -82,17 +92,44 @@ class WanderTask: Action() {
         slime.moveSlow(false)
     }
 
-    companion object {
-        private val log = logger<WanderTask>()
+    override fun copyTo(task: Task<AiEntity>): Task<AiEntity> {
+        (task as WanderTask).range = range
+        return task
+    }
+}
+
+class MoveTask(
+    @JvmField
+    @TaskAttribute(required = true)
+    var range: Float = 0f
+) : Action() {
+    override fun execute(): Status {
+        if (status != Status.RUNNING) {
+            slime.animation(AnimationType.RUN)
+            slime.fireEvent(EntityAggroEvent(slime.entity, slime.target))
+            return Status.RUNNING
+        }
+
+        slime.checkTargetStillNearby()
+        slime.moveToTarget()
+        if (slime.inTargetRange(range)) {
+            return Status.SUCCEEDED
+        }
+
+        return Status.RUNNING
+    }
+
+    override fun copyTo(task: Task<AiEntity>): Task<AiEntity> {
+        (task as MoveTask).range = range
+        return task
     }
 }
 
 class AttackTask: Action() {
-
     override fun execute(): Status {
         if (status != Status.RUNNING) {
+            slime.attack()
             slime.animation(AnimationType.ATTACK, Animation.PlayMode.NORMAL, true)
-            slime.startAttack()
             return Status.RUNNING
         }
 
@@ -103,10 +140,6 @@ class AttackTask: Action() {
         }
 
         return Status.RUNNING
-    }
-
-    companion object {
-        private val log = logger<WanderTask>()
     }
 }
 

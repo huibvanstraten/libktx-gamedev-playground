@@ -51,7 +51,6 @@ class LifeSystem(
             gameStage.fire(EntityTakeDamageEvent(entity, lifeComp.takeDamage))
             floatingText(lifeComp.takeDamage.toInt().toString(), physicsComp.body.position, physicsComp.size)
             lifeComp.takeDamage = 0f
-
         }
 
         //is life 0? if so, add to list of dead entities/components

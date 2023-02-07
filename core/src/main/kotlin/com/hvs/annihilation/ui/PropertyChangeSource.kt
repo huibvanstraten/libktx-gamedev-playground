@@ -13,12 +13,14 @@ abstract class PropertyChangeSource {
         actions += action
     }
 
-    fun notify(property: KProperty<*>, value: Any) {
-        listenersMap[property]?.forEach { it(value) }
+    //TODO: somehow the property argument does not match with the property in the listenersmap so for each is null
+    fun notify(property: KProperty<*>, value: Any) = listenersMap[property]?.forEach {
+        it(value)
     }
+
 }
 
-class PropertyNotifier<T : Any>(initialValue: T) {
+class PropertyNotifier<T: Any>(initialValue: T) {
     private var _value: T = initialValue
 
     operator fun getValue(thisRef: PropertyChangeSource, property: KProperty<*>): T = _value

@@ -201,6 +201,7 @@ class EntitySpawnSystem(
                 physicsScaling = vec2(0.3f, 0.3f),
                 physicsOffset = vec2(0f, -2f * UNIT_SCALE),
                 lifeScaling = 0.75f,
+                extraAttackRange = 2f,
                 aiTreePath = "ai/slime.tree"
             )
             "Chest" -> SpawnConfiguration(

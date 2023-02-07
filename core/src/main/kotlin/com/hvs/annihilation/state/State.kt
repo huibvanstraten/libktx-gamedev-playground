@@ -37,7 +37,7 @@ enum class DefaultState : EntityState {
     ATTACK {
         override fun enter(entity: PlayerEntity) {
             entity.animation(AnimationType.ATTACK, Animation.PlayMode.NORMAL)
-            entity.root(true)
+            entity.moveCmp.root = true
             entity.startAttack()
         }
 
@@ -52,7 +52,7 @@ enum class DefaultState : EntityState {
         }
 
         override fun exit(entity: PlayerEntity) {
-            entity.root(false)
+            entity.moveCmp.root = false
         }
     },
 
@@ -92,10 +92,9 @@ enum class DefaultState : EntityState {
         }
     },
 
-    //TODO: first time i die i can keep moving
     DEAD {
         override fun enter(entity: PlayerEntity) {
-            entity.root(true)
+            entity.moveCmp.root = true
         }
 
         override fun update(entity: PlayerEntity) {
@@ -114,13 +113,13 @@ enum class DefaultState : EntityState {
         override fun update(entity: PlayerEntity) {
             if (entity.isAnimationDone) {
                 entity.setState(IDLE)
-                entity.root(false)
+                entity.moveCmp.root = false
             }
         }
     }
 }
 
-enum class DefaultGlobalState : EntityState {
+enum class GlobalState : EntityState {
 
     CHECK_ALIVE {
         override fun update(entity: PlayerEntity) {

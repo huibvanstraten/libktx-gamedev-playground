@@ -24,7 +24,7 @@ class GameView(
         //fill entire viewport/stage/screen
         setFillParent(true)
         table {
-            this@GameView.playerInfo =playerInfoWidget(skin)
+            this@GameView.playerInfo = playerInfoWidget(skin)
             it.expand().width(80f).height(30f).top().left()
         }
 

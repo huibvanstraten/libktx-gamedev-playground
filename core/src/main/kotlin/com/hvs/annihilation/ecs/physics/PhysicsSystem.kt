@@ -16,7 +16,6 @@ import com.github.quillraven.fleks.IteratingSystem
 import com.hvs.annihilation.ecs.ai.AiComponent
 import com.hvs.annihilation.ecs.collision.CollisionComponent
 import com.hvs.annihilation.ecs.image.ImageComponent
-import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem.Companion.ACTION_SENSOR
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem.Companion.AI_SENSOR
 import com.hvs.annihilation.ecs.tiled.TiledComponent
 import ktx.log.logger
@@ -102,20 +101,18 @@ class PhysicsSystem(
 
             entityB in tiledCmps && entityA in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityA !in aiCmps -> {
                     collisionCmps[entityA].numGroundContacts ++
-                        println("FIRST: ADDING NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityA].numGroundContacts}")
                     }
 
             entityA in tiledCmps && entityB in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityB !in aiCmps -> {
                     collisionCmps[entityB].numGroundContacts ++
-                        println("SECOND: ADDING NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityB].numGroundContacts}")
                     }
 
             // AI entities keep track of their nearby entities to have this information available
             // for their behavior. E.g. a slime entity will attack a player if he comes close
-            entityA in aiCmps && entityB in collisionCmps && contact.fixtureA.userData == ACTION_SENSOR -> {
+            entityA in aiCmps && entityB in collisionCmps && contact.fixtureA.userData == AI_SENSOR -> {
                 aiCmps[entityA].nearByEntities += entityB
             }
-            entityB in aiCmps && entityA in collisionCmps && contact.fixtureB.userData == ACTION_SENSOR -> {
+            entityB in aiCmps && entityA in collisionCmps && contact.fixtureB.userData == AI_SENSOR -> {
                 aiCmps[entityB].nearByEntities += entityA
             }
         }
@@ -140,12 +137,10 @@ class PhysicsSystem(
 
             entityB in tiledCmps && entityA in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityA !in aiCmps -> {
                 collisionCmps[entityA].numGroundContacts --
-                println("FIRST: REmoving NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityA].numGroundContacts}")
             }
 
             entityA in tiledCmps && entityB in collisionCmps && !contact.isSensorA && !contact.isSensorB && entityB !in aiCmps -> {
                 collisionCmps[entityB].numGroundContacts --
-                println("SECOND: removing NUMGROUNDCONTACTS TO PLAYER? ${collisionCmps[entityB].numGroundContacts}")
             }
 
             entityA in aiCmps && contact.fixtureA.userData == AI_SENSOR -> {

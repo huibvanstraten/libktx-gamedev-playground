@@ -31,6 +31,7 @@ import com.hvs.annihilation.ecs.loot.LootSystem
 import com.hvs.annihilation.ecs.move.MoveSystem
 import com.hvs.annihilation.ecs.physics.PhysicsComponent
 import com.hvs.annihilation.ecs.physics.PhysicsSystem
+import com.hvs.annihilation.ecs.portal.PortalSystem
 import com.hvs.annihilation.ecs.render.RenderSystem
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem
 import com.hvs.annihilation.ecs.state.StateComponent
@@ -161,6 +162,7 @@ class LoadingScreen(
         system<EntitySpawnSystem>()
         system<CollisionSpawnSystem>()
         system<CollisionDespawnSystem>()
+        system<PortalSystem>()
         system<MoveSystem>()
         system<AttackSystem>()
         system<LootSystem>()

@@ -2,22 +2,19 @@ package com.hvs.annihilation.screen
 
 import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.maps.tiled.TiledMap
-import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.github.quillraven.fleks.World
 import com.hvs.annihilation.assets.TextureAtlasAssets
-import com.hvs.annihilation.ecs.audio.AudioSystem
 import com.hvs.annihilation.ecs.animation.AnimationSystem
+import com.hvs.annihilation.ecs.audio.AudioSystem
 import com.hvs.annihilation.ecs.camera.CameraSystem
+import com.hvs.annihilation.ecs.portal.PortalSystem
 import com.hvs.annihilation.ecs.render.RenderSystem
 import com.hvs.annihilation.event.GamePauseEvent
 import com.hvs.annihilation.event.GameResumeEvent
-import com.hvs.annihilation.event.MapChangeEvent
-import com.hvs.annihilation.event.fire
 import com.hvs.annihilation.input.InputConverter
 import com.hvs.annihilation.input.handler.GameInputHandler
 import com.hvs.annihilation.state.PlayerEntity
@@ -46,13 +43,9 @@ class GameScreen(
 
     private lateinit var inputConverter: InputConverter
     private lateinit var gameView: GameView
-    lateinit var currentMap: TiledMap
 
     init {
         gameStage.addListener(this)
-        println(
-            "Player has entity "
-        )
     }
 
     override fun show() {
@@ -60,13 +53,11 @@ class GameScreen(
 
         log.debug { "This is the GameScreen" }
 
-        uiStage.clear()
-        currentMap = TmxMapLoader().load("map/map1.tmx") //TODO: this is static 1 map
-        gameStage.fire(MapChangeEvent(currentMap))
+        entityWorld.system<PortalSystem>().setMap("map/map1.tmx")
 
+        uiStage.clear()
         uiStage.actors {
             gameView = gameView(GameModel(entityWorld, gameStage), skin)
-
             pauseView(skin) { this.isVisible = false }
         }
 
@@ -111,7 +102,6 @@ class GameScreen(
         gameStage.disposeSafely()
         uiStage.disposeSafely()
         textureAtlas.disposeSafely()
-        currentMap.disposeSafely()
         disposeSkin()
     }
 

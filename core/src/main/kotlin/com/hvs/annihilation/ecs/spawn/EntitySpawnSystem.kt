@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.utils.Scaling
 import com.hvs.annihilation.ecs.move.MoveComponent
-import com.hvs.annihilation.ecs.physics.PhysicsComponent.Companion.physicsComponentFromImage
+import com.hvs.annihilation.ecs.physics.PhysicsComponent.Companion.bodyFromImageAndConfig
 import com.hvs.annihilation.event.MapChangeEvent
 import com.github.quillraven.fleks.AllOf
 import com.github.quillraven.fleks.ComponentMapper
@@ -24,6 +24,7 @@ import com.hvs.annihilation.ecs.image.ImageComponent
 import com.hvs.annihilation.ecs.jump.JumpComponent
 import com.hvs.annihilation.ecs.life.LifeComponent
 import com.hvs.annihilation.ecs.loot.LootComponent
+import com.hvs.annihilation.ecs.physics.PhysicsComponent
 import com.hvs.annihilation.ecs.player.PlayerComponent
 import com.hvs.annihilation.ecs.spawn.SpawnConfiguration.Companion.DEFAULT_ATTACK_DAMAGE
 import com.hvs.annihilation.ecs.spawn.SpawnConfiguration.Companion.DEFAULT_LIFE
@@ -32,7 +33,6 @@ import com.hvs.annihilation.ecs.state.StateComponent
 import com.hvs.annihilation.enums.AnimationModel
 import com.hvs.annihilation.enums.AnimationType
 import ktx.app.gdxError
-import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.math.vec2
 import ktx.tiled.layer
@@ -48,6 +48,7 @@ class EntitySpawnSystem(
 ) : EventListener, IteratingSystem() {
     private val cachedSpawnConfigurations = mutableMapOf<String, SpawnConfiguration>()
     private val cachedSizes = mutableMapOf<AnimationModel, Vector2>()
+    private val playerEntities = world.family(allOf = arrayOf(PlayerComponent::class))
 
 
     override fun onTickEntity(entity: Entity) {
@@ -70,49 +71,8 @@ class EntitySpawnSystem(
                     nextAnimation(entityConfig.model, AnimationType.IDLE)
                 }
 
-                val physicsComp = physicsComponentFromImage(physicsWorld, imageComp.image, entityConfig.bodyType)
-                { physicsComp, w, h ->
-                    val width = w * entityConfig.physicsScaling.x
-                    val height = h * entityConfig.physicsScaling.y
-                    physicsComp.offset.set(entityConfig.physicsOffset)
-                    physicsComp.size.set(width, height)
-
-                    // hit box
-                    box(width, height, entityConfig.physicsOffset) {
-                        isSensor = entityConfig.bodyType != BodyDef.BodyType.StaticBody
-                        userData = HIT_BOX_SENSOR
-                    }
-
-                    // add a second fixture for ground contact for jumping
-                    if (entityConfig.bodyType != BodyDef.BodyType.DynamicBody) {
-                        box(
-                            width, height, entityConfig.physicsOffset
-                            ) {
-                            userData = GROUND_COLLISION_BOX
-                            isSensor = false
-                        }
-                    }
-
-
-                    if (entityConfig.bodyType != BodyDef.BodyType.StaticBody) {
-                        //collision box
-                        val collisionHeight = height * 0.4f
-                        val collisionOffset = vec2().apply { set(entityConfig.physicsOffset) }
-                        collisionOffset.y -= height * 0.5f - collisionHeight * 0.5f
-                        box(width, collisionHeight, collisionOffset)
-
-                        // ground sensor on dynamic entity foot
-                        box(
-                            entitySize.x * 0.5f,
-                            0.2f,
-                            vec2().apply { set(entityConfig.physicsOffset.x,
-                                -1f
-                            )}
-                        ) {
-                            userData = GROUND_TOUCH_SENSOR
-                            isSensor = false
-                        }
-                    }
+                val physicsComp = add<PhysicsComponent> {
+                    body = bodyFromImageAndConfig(physicsWorld, imageComp.image, entityConfig, entitySize)
                 }
 
                 if (entityConfig.speedScaling != 0f) {
@@ -172,6 +132,11 @@ class EntitySpawnSystem(
                 entityLayer.objects.forEach { mapObject ->
                     val name = mapObject.name
                         ?: gdxError("MapObject $mapObject does not have a name")  //actually it is class instead of type inside the editor. problem?
+
+                    if(name == "Player" && playerEntities.numEntities > 0) {
+                        return@forEach
+                    }
+
                     world.entity {
                         add<SpawnComponent> {
                             this.type = name
@@ -189,34 +154,14 @@ class EntitySpawnSystem(
         type: String
     ): SpawnConfiguration = cachedSpawnConfigurations.getOrPut(type) {
         when (type) {
-            "Player" -> SpawnConfiguration(
-                model = AnimationModel.PLAYER,
-                physicsScaling = vec2(0.3f, 0.3f),
-                physicsOffset = vec2(0f, -10f * UNIT_SCALE),
-                extraAttackRange = 0.6f,
-                attackScaling = 1.25f
-            )
-            "Slime" -> SpawnConfiguration(
-                model = AnimationModel.SLIME,
-                physicsScaling = vec2(0.3f, 0.3f),
-                physicsOffset = vec2(0f, -2f * UNIT_SCALE),
-                lifeScaling = 0.75f,
-                extraAttackRange = 2f,
-                aiTreePath = "ai/slime.tree"
-            )
-            "Chest" -> SpawnConfiguration(
-                model = AnimationModel.CHEST,
-                speedScaling = 0f,
-                bodyType = BodyDef.BodyType.StaticBody,
-                canAttack = false,
-                lifeScaling = 0f,
-                lootable = true
-            )
+            "Player" -> PLAYER_CONFIGURATION
+            "Slime" -> SLIME_CONFIGURATION
+            "Chest" -> CHEST_CONFIGURATION
             else -> gdxError("Type $type has no spawnConfiguration set up")
         }
     }
 
-    private fun getEntitySizeByIdleImage(model: AnimationModel) = cachedSizes.getOrPut(model) {
+     private fun getEntitySizeByIdleImage(model: AnimationModel) = cachedSizes.getOrPut(model) {
         val regions = atlas.findRegions("${model.atlasKey}/${AnimationType.IDLE.atlasKey}")
         if (regions.isEmpty) {
             gdxError("There are no regions for the idle animation of model $model")
@@ -229,10 +174,33 @@ class EntitySpawnSystem(
     }
 
     companion object {
-        const val ACTION_SENSOR = "actionSensor"
         const val AI_SENSOR = "aiSensor"
         const val HIT_BOX_SENSOR = "hitBox"
         const val GROUND_TOUCH_SENSOR = "groundTouchSensor"
         const val GROUND_COLLISION_BOX = "collisionBox"
+
+        val PLAYER_CONFIGURATION = SpawnConfiguration(
+            model = AnimationModel.PLAYER,
+            physicsScaling = vec2(0.3f, 0.3f),
+            physicsOffset = vec2(0f, -10f * UNIT_SCALE),
+            extraAttackRange = 0.6f,
+            attackScaling = 1.25f
+        )
+        val SLIME_CONFIGURATION = SpawnConfiguration(
+            model = AnimationModel.SLIME,
+            physicsScaling = vec2(0.3f, 0.3f),
+            physicsOffset = vec2(0f, -2f * UNIT_SCALE),
+            lifeScaling = 0.75f,
+            extraAttackRange = 2f,
+            aiTreePath = "ai/slime.tree"
+        )
+        val CHEST_CONFIGURATION = SpawnConfiguration(
+            model = AnimationModel.CHEST,
+            speedScaling = 0f,
+            bodyType = BodyDef.BodyType.StaticBody,
+            canAttack = false,
+            lifeScaling = 0f,
+            lootable = true
+        )
     }
 }

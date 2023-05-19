@@ -88,7 +88,7 @@ class CollisionSpawnSystem(
                 processedCells.add(cell)
                 cell.tile.objects.forEach { mapObject ->
                     world.entity {
-                        physicsCompFromShape2D(physicsWorld, x, y, mapObject.shape)
+                        physicsCompFromShape2D(physicsWorld, x, y, mapObject.shape, false)
                         add<TiledComponent> {
                             this.cell = cell
                             nearbyEntities.add(entity)

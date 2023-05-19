@@ -16,6 +16,8 @@ import com.github.quillraven.fleks.IteratingSystem
 import com.hvs.annihilation.ecs.ai.AiComponent
 import com.hvs.annihilation.ecs.collision.CollisionComponent
 import com.hvs.annihilation.ecs.image.ImageComponent
+import com.hvs.annihilation.ecs.player.PlayerComponent
+import com.hvs.annihilation.ecs.portal.PortalComponent
 import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem.Companion.AI_SENSOR
 import com.hvs.annihilation.ecs.tiled.TiledComponent
 import ktx.log.logger
@@ -29,7 +31,9 @@ class PhysicsSystem(
     private val physicCmps: ComponentMapper<PhysicsComponent>,
     private val tiledCmps: ComponentMapper<TiledComponent>,
     private val collisionCmps: ComponentMapper<CollisionComponent>,
-    private val aiCmps: ComponentMapper<AiComponent>
+    private val aiCmps: ComponentMapper<AiComponent>,
+    private val portalCmps: ComponentMapper<PortalComponent>,
+    private val playerCmps: ComponentMapper<PlayerComponent>
 ) : IteratingSystem(interval = Fixed(1 / 60f)), ContactListener {
     init {
         physicWorld.setContactListener(this)
@@ -114,6 +118,14 @@ class PhysicsSystem(
             }
             entityB in aiCmps && entityA in collisionCmps && contact.fixtureB.userData == AI_SENSOR -> {
                 aiCmps[entityB].nearByEntities += entityA
+            }
+
+            // portal collision handling
+            entityA in portalCmps && entityB in playerCmps && !contact.fixtureB.isSensor -> {
+                portalCmps[entityA].entitiesToMove += entityB
+            }
+            entityB in portalCmps && entityA in playerCmps && !contact.fixtureA.isSensor -> {
+                portalCmps[entityB].entitiesToMove += entityA
             }
         }
     }

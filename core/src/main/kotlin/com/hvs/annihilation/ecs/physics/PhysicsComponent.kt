@@ -4,7 +4,9 @@ import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Polyline
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Shape2D
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.scenes.scene2d.ui.Image
@@ -13,10 +15,12 @@ import com.github.quillraven.fleks.ComponentListener
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.EntityCreateCfg
 import com.hvs.annihilation.Annihilation.Companion.UNIT_SCALE
+import com.hvs.annihilation.ecs.spawn.EntitySpawnSystem
+import com.hvs.annihilation.ecs.spawn.SpawnConfiguration
 import ktx.app.gdxError
-import ktx.box2d.BodyDefinition
 import ktx.box2d.FixtureDefinition
 import ktx.box2d.body
+import ktx.box2d.box
 import ktx.box2d.chain
 import ktx.box2d.circle
 import ktx.box2d.loop
@@ -36,9 +40,10 @@ class PhysicsComponent {
             x: Int,
             y: Int,
             shape: Shape2D,
+            isPortal: Boolean = false,
             init: FixtureDefinition.() -> Unit = { }
         ): PhysicsComponent {
-            when(shape) {
+            when (shape) {
                 is Rectangle -> {
                     val bodyX = x + shape.x * UNIT_SCALE
                     val bodyY = y + shape.y * UNIT_SCALE
@@ -55,7 +60,9 @@ class PhysicsComponent {
                                 vec2(bodyWidth, 0f),
                                 vec2(bodyWidth, bodyHeight),
                                 vec2(0f, bodyHeight)
-                            )
+                            ) {
+                                this.isSensor = isPortal
+                            }
                             circle(SPAWN_AREA_SIZE + 2f) { isSensor = true }
                         }
                     }
@@ -90,39 +97,81 @@ class PhysicsComponent {
                         }
                     }
                 }
-
-
                 else -> gdxError("Shape $shape is not supported")
             }
         }
 
-        fun EntityCreateCfg.physicsComponentFromImage(
+        fun PhysicsComponent.bodyFromImageAndConfig(
             physicsWorld: World,
             image: Image,
-            bodyType: BodyType,
-            fixtureAction: BodyDefinition.(PhysicsComponent, Float, Float) -> Unit //wtf is this :)
-        ): PhysicsComponent {
+            entityConfig: SpawnConfiguration,
+            entitySize: Vector2
+        ): Body {
             val positionX = image.x
             val positionY = image.y
-            val width = image.width
-            val height = image.height
+            val w = image.width
+            val h = image.height
 
-            return add {
-                body = physicsWorld.body(bodyType) {
-                    //box2d starting position is dead center instead of bottom left. Therefor this calculation needs to be made
-                    position.set(
-                        positionX + width * 0.5f,
-                        positionY + height * 0.5f
-                    )
-                    fixedRotation = true
-                    allowSleep = false
-                    this.fixtureAction(this@add, width, height) //and wtf is this
+            val physicsComponent = this
+
+            return physicsWorld.body(entityConfig.bodyType) {
+                //box2d starting position is dead center instead of bottom left. Therefor this calculation needs to be made
+                position.set(
+                    positionX + w * 0.5f,
+                    positionY + h * 0.5f
+                )
+                fixedRotation = true
+                allowSleep = false
+
+                val width = w * entityConfig.physicsScaling.x
+                val height = h * entityConfig.physicsScaling.y
+                physicsComponent.offset.set(entityConfig.physicsOffset)
+                physicsComponent.size.set(width, height)
+
+                // hit box
+                box(width, height, entityConfig.physicsOffset) {
+                    isSensor = entityConfig.bodyType != BodyDef.BodyType.StaticBody
+                    userData = EntitySpawnSystem.HIT_BOX_SENSOR
                 }
-                previousPosition.set(body.position)
+
+                // add a second fixture for ground contact for jumping
+                if (entityConfig.bodyType != BodyType.DynamicBody) {
+                    box(
+                        width, height, entityConfig.physicsOffset
+                    ) {
+                        userData = EntitySpawnSystem.GROUND_COLLISION_BOX
+                        isSensor = false
+                    }
+                }
+
+
+                if (entityConfig.bodyType != BodyType.StaticBody) {
+                    //collision box
+                    val collisionHeight = height * 0.4f
+                    val collisionOffset = vec2().apply { set(entityConfig.physicsOffset) }
+                    collisionOffset.y -= height * 0.5f - collisionHeight * 0.5f
+                    box(width, collisionHeight, collisionOffset)
+
+                    // ground sensor on dynamic entity foot
+                    box(
+                        entitySize.x * 0.5f,
+                        0.2f,
+                        vec2().apply {
+                            set(
+                                entityConfig.physicsOffset.x,
+                                -1f
+                            )
+                        }
+                    ) {
+                        userData = EntitySpawnSystem.GROUND_TOUCH_SENSOR
+                        isSensor = false
+                    }
+                }
+//                previousPosition.set(body.position)   Doesn't seem necessary?????
             }
         }
 
-        class PhysicsComponentListener: ComponentListener<PhysicsComponent> {
+        class PhysicsComponentListener : ComponentListener<PhysicsComponent> {
             override fun onComponentAdded(entity: Entity, component: PhysicsComponent) {
                 component.body.userData = entity
             }

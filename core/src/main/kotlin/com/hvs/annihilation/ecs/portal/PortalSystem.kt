@@ -10,11 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.fleks.AllOf
+import com.github.quillraven.fleks.AnyOf
 import com.github.quillraven.fleks.ComponentMapper
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.hvs.annihilation.Annihilation
 import com.hvs.annihilation.Annihilation.Companion.UNIT_SCALE
+import com.hvs.annihilation.ecs.dead.DeadComponent
 import com.hvs.annihilation.ecs.image.ImageComponent
 import com.hvs.annihilation.ecs.physics.PhysicsComponent
 import com.hvs.annihilation.ecs.physics.PhysicsComponent.Companion.bodyFromImageAndConfig

@@ -99,7 +99,7 @@ enum class DefaultState : EntityState {
 
         override fun update(entity: PlayerEntity) {
             if (!entity.isDead) {
-                entity.setState(RESURRECT)
+                entity.setState(IDLE)
             }
         }
     },

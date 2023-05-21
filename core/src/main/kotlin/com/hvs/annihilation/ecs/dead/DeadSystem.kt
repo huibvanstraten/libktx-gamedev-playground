@@ -7,6 +7,8 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.hvs.annihilation.ecs.animation.AnimationComponent
 import com.hvs.annihilation.ecs.life.LifeComponent
+import com.hvs.annihilation.ecs.player.PlayerComponent
+import com.hvs.annihilation.ecs.portal.PortalComponent
 import com.hvs.annihilation.event.EntityReviveEvent
 import com.hvs.annihilation.event.fire
 import ktx.log.logger
@@ -14,26 +16,37 @@ import ktx.log.logger
 @AllOf([DeadComponent::class])
 class DeadSystem(
     private val lifeComponents: ComponentMapper<LifeComponent>,
+    private val playerComponents: ComponentMapper<PlayerComponent>,
     private val deadComponents: ComponentMapper<DeadComponent>,
     private val animationComponents: ComponentMapper<AnimationComponent>,
-    private val gameStage: Stage
+    private val portalComponents: ComponentMapper<PortalComponent>,
+    private val gameStage: Stage,
 ) : IteratingSystem() {
 
     override fun onTickEntity(entity: Entity) {
         if (animationComponents[entity].isAnimationDone) {
-            val deadComp = deadComponents[entity]
-            if (deadComp.reviveTime == 0f) {
-                log.debug { "Entity $entity with animation gets removed" }
+
+            // enemies stay dead
+            if (entity !in playerComponents) {
                 world.remove(entity)
                 return
             }
 
-            deadComp.reviveTime -= deltaTime
-            if (deadComp.reviveTime <= 0f) {
-                log.debug { "Entity $entity gets resurrected" }
-                with(lifeComponents[entity]) { life = maximumLife }
-                configureEntity(entity) { deadComponents.remove(it) }
-                gameStage.fire(EntityReviveEvent(entity))
+            // set player life to full
+            with(lifeComponents[entity]) { life = maximumLife }
+
+            // set player life bar to full
+            gameStage.fire(EntityReviveEvent(entity))
+
+            configureEntity(entity) { deadComponents.remove(it) }
+            configureEntity(entity) {
+                if (it in playerComponents)
+                portalComponents.add(it) {
+                    entitiesToMove.add(it)
+                    // now sets to standard hardcoded resurrection point
+                    toMap = "map1"
+                    toPortal = 68
+                }
             }
         }
     }

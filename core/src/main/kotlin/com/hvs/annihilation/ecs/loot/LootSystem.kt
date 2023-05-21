@@ -1,5 +1,6 @@
 package com.hvs.annihilation.ecs.loot
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.github.quillraven.fleks.AllOf
@@ -32,6 +33,8 @@ class LootSystem(
                 animationComponent.nextAnimation(AnimationType.OPEN)
                 animationComponent.playMode = Animation.PlayMode.NORMAL
             }
+
+            Gdx.app.getPreferences("Looted Chests").putInteger(mapId.toString(), mapId)
         }
     }
 }

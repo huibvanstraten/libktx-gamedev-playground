@@ -1,5 +1,7 @@
 package com.hvs.annihilation.ecs.spawn
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -35,6 +37,7 @@ import com.hvs.annihilation.enums.AnimationType
 import ktx.app.gdxError
 import ktx.box2d.circle
 import ktx.math.vec2
+import ktx.tiled.id
 import ktx.tiled.layer
 import ktx.tiled.x
 import ktx.tiled.y
@@ -54,7 +57,10 @@ class EntitySpawnSystem(
     override fun onTickEntity(entity: Entity) {
         with(spawnComponents[entity]) {
             val entityConfig = setSpawnConfiguration(type)
+            entityConfig.mapId = this.mapId
             val entitySize = getEntitySizeByIdleImage(entityConfig.model)
+
+            val lootedChestList = Gdx.app.getPreferences("Looted Chests").get()
 
             world.entity {
                 val imageComp = add<ImageComponent> {
@@ -67,7 +73,10 @@ class EntitySpawnSystem(
                 }
 
                 add<AnimationComponent> {
-                    nextAnimation(entityConfig.model, AnimationType.IDLE)
+                    if (lootedChestList.any { (it.value as String).toInt() == entityConfig.mapId }) {
+                        nextAnimation(entityConfig.model, AnimationType.OPEN)
+                        playMode = Animation.PlayMode.NORMAL
+                    } else nextAnimation(entityConfig.model, AnimationType.IDLE)
                 }
 
                 val physicsComp = add<PhysicsComponent> {
@@ -106,13 +115,16 @@ class EntitySpawnSystem(
                     add<JumpComponent>()
                 }
 
-                if (entityConfig.lootable) {
-                    add<LootComponent>()
+                if (entityConfig.lootable && lootedChestList.none { (it.value as String).toInt() == entityConfig.mapId }) {
+                    add<LootComponent> {
+                        val spawnComponent = this@with
+                        mapId = spawnComponent.mapId
+                    }
                 }
 
                 if (entityConfig.aiTreePath.isNotBlank()) {
                     add<AiComponent> {
-                        treePath =  entityConfig.aiTreePath
+                        treePath = entityConfig.aiTreePath
                     }
                     physicsComp.body.circle(4f) {
                         isSensor = true
@@ -131,13 +143,14 @@ class EntitySpawnSystem(
                 entityLayer.objects.forEach { mapObject ->
                     val name = mapObject.name
                         ?: gdxError("MapObject $mapObject does not have a name")
-                    if(name == "Player" && playerEntities.numEntities > 0) {
+                    if (name == "Player" && playerEntities.numEntities > 0) {
                         return@forEach
                     }
 
                     world.entity {
                         add<SpawnComponent> {
                             this.type = name
+                            this.mapId = mapObject.id
                             this.location.set(mapObject.x * UNIT_SCALE, mapObject.y * UNIT_SCALE)
                         }
                     }
@@ -159,7 +172,7 @@ class EntitySpawnSystem(
         }
     }
 
-     private fun getEntitySizeByIdleImage(model: AnimationModel) = cachedSizes.getOrPut(model) {
+    private fun getEntitySizeByIdleImage(model: AnimationModel) = cachedSizes.getOrPut(model) {
         val regions = atlas.findRegions("${model.atlasKey}/${AnimationType.IDLE.atlasKey}")
         if (regions.isEmpty) {
             gdxError("There are no regions for the idle animation of model $model")

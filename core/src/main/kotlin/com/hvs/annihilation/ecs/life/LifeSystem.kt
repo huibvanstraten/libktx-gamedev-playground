@@ -53,20 +53,16 @@ class LifeSystem(
             lifeComp.takeDamage = 0f
         }
 
-        //is life 0? if so, add to list of dead entities/components
+        // is life 0? if so, add to list of dead entities/components
         if (lifeComp.isDead) {
             animationComponents.getOrNull(entity)?.let { animationComponent ->
                 animationComponent.nextAnimation(AnimationType.DEATH)
                 animationComponent.playMode = Animation.PlayMode.NORMAL
             }
+
             configureEntity(entity) {
-                deadComponents.add(it) {
-                    if (it in playerComponents) {
-                        reviveTime = 7f
-                    }
-                }
+                deadComponents.add(it)
             }
-            println("DEAD")
         }
     }
 

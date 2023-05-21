@@ -125,7 +125,7 @@
     <property name="Type" value="Player"/>
    </properties>
   </object>
-  <object id="50" name="Chest" class="Chest" gid="3573" x="522.365" y="287.343" width="16" height="16">
+  <object id="50" name="Chest" class="Chest" gid="3573" x="253.032" y="286.01" width="16" height="16">
    <properties>
     <property name="Type" value="Chest"/>
    </properties>

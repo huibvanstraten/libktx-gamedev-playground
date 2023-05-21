@@ -6,6 +6,7 @@ import com.hvs.annihilation.enums.AnimationModel
 import ktx.math.vec2
 
 data class SpawnConfiguration(
+    var mapId: Int = -1,
     val model: AnimationModel,
     val speedScaling: Float = 1f,
     val canAttack: Boolean = true,

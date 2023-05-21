@@ -57,7 +57,6 @@ class EntitySpawnSystem(
             val entitySize = getEntitySizeByIdleImage(entityConfig.model)
 
             world.entity {
-
                 val imageComp = add<ImageComponent> {
                     //flipping image of player
                     image = FlipImage().apply {
@@ -131,8 +130,7 @@ class EntitySpawnSystem(
                 val entityLayer = event.map.layer("entities")
                 entityLayer.objects.forEach { mapObject ->
                     val name = mapObject.name
-                        ?: gdxError("MapObject $mapObject does not have a name")  //actually it is class instead of type inside the editor. problem?
-
+                        ?: gdxError("MapObject $mapObject does not have a name")
                     if(name == "Player" && playerEntities.numEntities > 0) {
                         return@forEach
                     }

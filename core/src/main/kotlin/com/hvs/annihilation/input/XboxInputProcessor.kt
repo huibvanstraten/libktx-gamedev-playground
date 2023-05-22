@@ -1,9 +1,27 @@
 package com.hvs.annihilation.input
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.controllers.Controller
 import com.badlogic.gdx.controllers.ControllerListener
 import com.badlogic.gdx.controllers.Controllers
 import ktx.log.logger
+
+fun gdxInputProcessor(processor: InputProcessor) {
+  val currentProcessor = Gdx.input.inputProcessor
+  if (currentProcessor == null) {
+    Gdx.input.inputProcessor = processor
+  } else {
+    if (currentProcessor is InputMultiplexer) {
+      if (currentProcessor !in currentProcessor.processors) {
+        currentProcessor.addProcessor(processor)
+      }
+    } else {
+      Gdx.input.inputProcessor = InputMultiplexer(currentProcessor, processor)
+    }
+  }
+}
 
 interface XboxInputProcessor : ControllerListener {
 

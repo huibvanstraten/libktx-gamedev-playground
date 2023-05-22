@@ -132,9 +132,11 @@ class LoadingScreen(
         )
         game.addScreen(
             GameScreen(
+                game,
                 gameStage,
                 tempUiStage,
                 skin,
+                bundle,
                 world,
                 physicsWorld,
                 playerEntity

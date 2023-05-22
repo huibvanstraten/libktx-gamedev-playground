@@ -11,6 +11,7 @@ import com.hvs.annihilation.event.EntityDeathEvent
 import com.hvs.annihilation.event.EntityLootEvent
 import com.hvs.annihilation.event.GamePauseEvent
 import com.hvs.annihilation.event.GameResumeEvent
+import com.hvs.annihilation.event.GameSelectEvent
 import com.hvs.annihilation.event.MapChangeEvent
 import com.hvs.annihilation.event.MenuChoiceEvent
 import ktx.assets.disposeSafely
@@ -40,8 +41,11 @@ class AudioSystem: EventListener, IntervalSystem() {
             is GamePauseEvent -> {
                 music?.pause()
                 soundCache.values.forEach { it.pause() }
+            }
+            is GameSelectEvent-> {
+                music?.pause()
+                soundCache.values.forEach { it.pause() }
                 queueSound("audio/pause.mp3")
-
             }
             is GameResumeEvent -> {
                 music?.play()

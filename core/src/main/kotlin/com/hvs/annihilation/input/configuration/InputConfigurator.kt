@@ -12,6 +12,7 @@ import com.hvs.annihilation.input.buttoninput.ButtonAInput
 import com.hvs.annihilation.input.buttoninput.ButtonBInput
 import com.hvs.annihilation.input.buttoninput.ButtonLeftInput
 import com.hvs.annihilation.input.buttoninput.ButtonRightInput
+import com.hvs.annihilation.input.buttoninput.ButtonSelectInput
 import com.hvs.annihilation.input.buttoninput.Input
 import com.hvs.annihilation.state.PlayerEntity
 

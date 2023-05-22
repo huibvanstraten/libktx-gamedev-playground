@@ -25,6 +25,8 @@ class MenuChoiceEvent: Event()
 
 class GamePauseEvent: Event()
 
+class GameSelectEvent: Event()
+
 class GameResumeEvent: Event()
 
 data class EntityTakeDamageEvent(val entity: Entity, val damage: Float) : Event()

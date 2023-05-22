@@ -12,7 +12,6 @@ import com.hvs.annihilation.enums.AnimationType
 import com.hvs.annihilation.event.EntityLootEvent
 import com.hvs.annihilation.event.fire
 
-
 @AllOf([LootComponent::class])
 class LootSystem(
     private val lootComponents: ComponentMapper<LootComponent>,

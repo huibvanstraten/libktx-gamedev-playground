@@ -198,7 +198,10 @@ class TitleScreen(
         if (menuShown) {
             selectOptions[currentOption].removeSelectionEffect()
             when (currentOption) {
-                OPT_NEW -> startGame()
+                OPT_NEW -> {
+                    Gdx.app.getPreferences("Looted Chests").clear()
+                    startGame()
+                }
                 OPT_CONTINUE -> startGame()
                 OPT_OPTIONS -> options()
                 OPT_QUIT -> quitGame()
@@ -379,6 +382,6 @@ class TitleScreen(
         private const val ATTACK = 1
         private const val ACTION_BACK = 2
 
-        private const val TOP_OPTION = 0
+        const val TOP_OPTION = 0
     }
 }

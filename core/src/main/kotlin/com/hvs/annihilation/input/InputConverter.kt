@@ -5,6 +5,7 @@ import com.hvs.annihilation.input.buttoninput.ButtonAInput
 import com.hvs.annihilation.input.buttoninput.ButtonBInput
 import com.hvs.annihilation.input.buttoninput.ButtonLeftInput
 import com.hvs.annihilation.input.buttoninput.ButtonRightInput
+import com.hvs.annihilation.input.buttoninput.ButtonSelectInput
 import com.hvs.annihilation.input.buttoninput.ButtonStartInput
 import com.hvs.annihilation.input.handler.GameInputHandler
 import ktx.log.logger
@@ -30,6 +31,7 @@ class InputConverter(
                 LEFT -> gameInputHandler.handleInput(ButtonLeftInput(buttonCode,buttonDown = true, buttonUp = false))
                 RIGHT -> gameInputHandler.handleInput(ButtonRightInput(buttonCode,buttonDown = true, buttonUp = false))
                 START -> gameInputHandler.handleInput(ButtonStartInput(buttonCode, buttonDown = true, buttonUp = false))
+                SELECT -> gameInputHandler.handleInput(ButtonSelectInput(buttonCode, buttonDown = true, buttonUp = false))
             }
             return true
         }
@@ -60,7 +62,7 @@ class InputConverter(
 
     private fun Int.isMovementKey(): Boolean = this == LEFT || this == RIGHT
 
-    private fun Int.isImplementedButton(): Boolean = this == LEFT || this == RIGHT || this == B || this == A || this == START
+    private fun Int.isImplementedButton(): Boolean = this == LEFT || this == RIGHT || this == B || this == A || this == START || this == SELECT
 
     private fun isPressed(button: Int): Boolean = button in pressedButtons
 
@@ -76,5 +78,6 @@ class InputConverter(
         private const val B = XboxInputProcessor.BUTTON_B
         private const val A = XboxInputProcessor.BUTTON_A
         private const val START = XboxInputProcessor.BUTTON_START
+        private const val SELECT = XboxInputProcessor.BUTTON_SELECT
     }
 }

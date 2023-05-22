@@ -23,7 +23,7 @@ class Annihilation: KtxGame<KtxScreen>() {
             // load textures for skin
             val bundle = assetStorage.loadAsync(I18nAssets.DEFAULT)
 
-            addScreen(LoadingScreen(this@Annihilation, AssetStorage(), bundle.await()))
+            addScreen(LoadingScreen(this@Annihilation, assetStorage, bundle.await()))
             setScreen<LoadingScreen>()
 
             // screen for developing new screens
